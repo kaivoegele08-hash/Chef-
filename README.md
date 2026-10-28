@@ -50,15 +50,22 @@ mitgelieferten Bridge `pitwall-relay.exe`, die Shared Memory aus dem Proton-Pref
 
 ## Schnellstart
 
-**Linux (Bazzite & Co.)**
+**Linux (Bazzite & Co.) – ein Befehl zum Installieren:**
 
 ```bash
-brew install uv            # oder: curl -LsSf https://astral.sh/uv/install.sh | sh
-git clone <dieses-repo> ~/pitwall && cd ~/pitwall
-./start.sh --sim simulator # Testrennen ohne Spiel – Dashboard öffnet sich
-./start.sh doctor          # prüft Audio, Funktaste, Ports, Proton und ob Spieldaten ankommen
-./start.sh                 # Auto-Erkennung: einfach das Spiel starten
+curl -fsSL https://raw.githubusercontent.com/kaivoegele08-hash/Chef-/claude/pitwall-race-engineer/install.sh | bash
 ```
+
+(Oder nach `git clone …`: `bash install.sh` im Ordner.) Danach überall im Terminal:
+
+```bash
+pitwall          # starten – Spiel wird automatisch erkannt
+pitwall test     # Testrennen ohne Spiel
+pitwall doctor   # prüft Audio, Funktaste, Ports, Proton und ob Spieldaten ankommen
+pitwall update   # neueste Version holen
+```
+
+Im Startmenü gibt es außerdem den Eintrag **PIT WALL**.
 
 **Windows**
 
