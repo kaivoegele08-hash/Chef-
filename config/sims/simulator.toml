@@ -1,0 +1,9 @@
+[tyres.window]
+soft = [88, 108]
+medium = [88, 108]
+hard = [88, 110]
+dry = [75, 98]
+[rules]
+two_compound_rule = true
+refuelling = false
+vocabulary = "formula"

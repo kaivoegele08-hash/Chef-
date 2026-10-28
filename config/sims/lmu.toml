@@ -1,0 +1,8 @@
+[tyres.window]
+soft = [80, 100]
+medium = [82, 102]
+hard = [85, 105]
+wet = [45, 75]
+dry = [80, 100]
+[rules]
+vocabulary = "prototype"

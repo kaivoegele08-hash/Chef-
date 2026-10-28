@@ -1,0 +1,13 @@
+# EA SPORTS F1 24/25
+[tyres]
+wear_limit_pct = 70.0
+[tyres.window]
+soft = [90, 105]
+medium = [90, 108]
+hard = [95, 112]
+inter = [60, 85]
+wet = [45, 65]
+[rules]
+two_compound_rule = true
+refuelling = false
+vocabulary = "formula"

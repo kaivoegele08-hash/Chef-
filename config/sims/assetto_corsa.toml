@@ -1,0 +1,9 @@
+[tyres]
+wear_limit_pct = 80.0   # AC meldet Abrieb (tyreWear) – Limit großzügiger
+[tyres.window]
+soft = [80, 100]
+medium = [80, 100]
+hard = [85, 105]
+dry = [80, 100]
+[rules]
+vocabulary = "gt"

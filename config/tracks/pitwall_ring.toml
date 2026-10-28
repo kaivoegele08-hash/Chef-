@@ -1,0 +1,10 @@
+# Simulator-Strecke
+name = "PIT WALL Ring"
+pit_loss_s = 15.0
+sc_pit_loss_factor = 0.5
+[corners]
+1 = "Haarnadel"
+2 = "Waldkurve"
+5 = "Parabolica"
+8 = "Schikane"
+10 = "Zielkurve"

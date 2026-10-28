@@ -1,0 +1,4 @@
+# Startwert (Community-Erfahrung F1-Spiel, wird gelernt)
+name = "Montreal"
+pit_loss_s = 18.5
+sc_pit_loss_factor = 0.55

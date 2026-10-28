@@ -1,0 +1,148 @@
+# PIT WALL – Standardkonfiguration
+# Eigene Anpassungen gehören in ~/.config/pitwall/config.toml (Linux) bzw.
+# %APPDATA%\pitwall\config.toml (Windows) oder ./pitwall.toml – diese Datei
+# bleibt unverändert. Das Dashboard schreibt Einstellungen in die Benutzerdatei.
+
+[general]
+language = "de"            # de | en
+units_speed = "kmh"        # kmh | mph
+units_pressure = "psi"     # psi | kpa | bar
+units_temperature = "c"
+data_dir = ""              # leer = ~/.local/share/pitwall bzw. %LOCALAPPDATA%\pitwall
+log_level = "INFO"
+
+[sim]
+# auto = Auto-Erkennung über alle aktivierten Adapter
+active = "auto"            # auto | simulator | f1 | gt7 | assetto_corsa | acc | iracing | rfactor2 | lmu | ets2 | replay
+autodetect = ["f1", "gt7", "assetto_corsa", "acc", "iracing", "rfactor2", "lmu", "ets2"]
+detect_interval_s = 2.0
+
+[engineer]
+name = "Max"
+driver_name = ""           # wie dich der Engineer anspricht (leer = kein Name)
+verbosity = "normal"       # chatty | normal | important | silent
+max_info_per_lap = 3       # nicht-kritische Funksprüche pro Runde
+strategy_update = "lap"    # lap | off | Sekunden als Zahl, z.B. "90"
+quiet_last_corners = 2     # Funkstille in den letzten N Kurven vor der Linie (außer CRITICAL)
+coaching_in_race = "on_request"  # off | on_request | sparse
+coaching_in_practice = "on"
+tyre_briefing = true
+ask_balance = true
+
+[strategy]
+fuel_reserve_laps = 0.5
+fuel_time_per_litre_s = 0.03       # Rundenzeitverlust pro Liter Sprit (sprit-korrigierte Degradation)
+default_pit_loss_s = 22.0           # wird pro Strecke gelernt
+sc_pit_loss_factor = 0.55           # Anteil des Boxenverlusts unter Safety Car
+vsc_pit_loss_factor = 0.7
+max_stops = 3
+drs_range_s = 1.0
+pit_window_tolerance_laps = 3
+learn_pit_loss = true
+
+[brain]
+enabled = true                      # ohne API-Key automatisch Phrasebook-Modus
+provider = "anthropic"
+radio_model = "claude-haiku-5-5"    # schnell: Funksprüche + Fragen
+strategy_model = "claude-sonnet-5-5"  # optional: Strategie-Abwägung + Debrief
+use_strategy_model = true
+timeout_s = 2.5
+max_tokens = 300
+daily_token_limit = 400000          # Eingabe+Ausgabe-Tokens pro Tag, danach Phrasebook
+prompt_caching = true
+
+[voice]
+stt_provider = "faster_whisper"     # faster_whisper | none
+stt_model = "small"                 # tiny | base | small | medium | large-v3
+stt_device = "auto"                 # auto | cuda | cpu
+stt_compute_type = "auto"           # auto | int8 | float16
+tts_provider = "piper"              # piper | elevenlabs | espeak | none
+piper_voice = "de_DE-thorsten-medium"
+piper_voice_en = "en_GB-alan-medium"
+piper_length_scale = 0.92           # <1 = schneller sprechen
+elevenlabs_model = "eleven_flash_v2_5"
+elevenlabs_voice_id = ""            # alternativ ELEVENLABS_VOICE_ID in .env
+output_device = ""                  # leer = Standardgerät; Name oder Index
+input_device = ""
+volume = 1.0
+radio_fx = true
+radio_fx_intensity = 0.6
+words_per_second = 2.8              # Schätzwert für Dry-Run/Director-Timing
+
+[ptt]
+keyboard_key = "space"              # nur wenn Dashboard/Terminal Fokus hat; global: evdev
+device = ""                         # evdev-Gerätename oder Pfad (leer = alle Joysticks)
+button = -1                         # Tastencode (evdev) bzw. Index (SDL); per Dashboard zuweisen
+backend = "auto"                    # auto | evdev | sdl | none
+max_record_s = 12.0
+
+[web]
+host = "0.0.0.0"                    # 127.0.0.1 = nur lokal, 0.0.0.0 = auch Tablet/Handy im LAN
+port = 8077
+update_hz = 15
+open_browser = true
+
+[recorder]
+enabled = false                     # immer mitschneiden
+directory = ""                      # leer = <data_dir>/recordings
+compression = "auto"                # auto | zstd | gzip | none
+
+[ports]
+f1 = 20777
+gt7_send = 33739
+gt7_receive = 33740
+ac = 9996
+acc_broadcast = 9000
+
+[f1]
+bind = "0.0.0.0"
+port = 20777
+forward = []                        # weitere Ziele, z.B. ["127.0.0.1:20778"] für SimHub etc.
+
+[gt7]
+ps5_ip = ""                         # leer = suchen (Broadcast)
+heartbeat = "~"                     # A | B | ~  (~ liefert die meisten Felder)
+heartbeat_interval_s = 1.0
+
+[assetto_corsa]
+mode = "auto"                       # auto | shm | udp
+udp_host = "127.0.0.1"
+udp_port = 9996
+
+[acc]
+broadcast_host = "127.0.0.1"
+broadcast_port = 9000
+broadcast_password = "asd"
+display_name = "PITWALL"
+update_interval_ms = 250
+
+[shm]
+# Wo die Proton-Bridge die gespiegelten Maps ablegt (Linux)
+mirror_dir = "/dev/shm"
+prefix = "pitwall-"
+poll_hz = 60
+
+[iracing]
+poll_hz = 30
+allow_pit_commands = false          # Tankmenge per Funk setzen (nur mit Freigabe)
+
+[rfactor2]
+poll_hz = 30
+
+[lmu]
+poll_hz = 30
+rest_api = "http://127.0.0.1:6397"
+
+[ets2]
+poll_hz = 10
+mode = "dispatcher"
+
+[simulator]
+seed = 7
+cars = 20
+laps = 20
+scenario = "default"                # default | undercut | sc_window | fuel_critical | rain | flashback | restart | quali | gt
+vehicle_class = "formula"           # formula | gt
+track = "pitwall_ring"
+hz = 20
+time_scale = 1.0

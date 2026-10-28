@@ -1,0 +1,4 @@
+# Startwert (Community-Erfahrung F1-Spiel, wird gelernt)
+name = "Interlagos"
+pit_loss_s = 21.0
+sc_pit_loss_factor = 0.55

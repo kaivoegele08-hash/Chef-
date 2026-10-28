@@ -1,0 +1,8 @@
+# ACC: Kunos-Fenster Oberfläche ~70–95 °C, Druck 27,3–28,0 psi heiß (Trocken)
+[tyres]
+pressure_window_kpa = [188.2, 193.1]
+[tyres.window]
+dry = [70, 95]
+wet = [45, 75]
+[rules]
+vocabulary = "gt"

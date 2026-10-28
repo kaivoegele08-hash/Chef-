@@ -1,0 +1,10 @@
+# Gran Turismo 7 – liefert nur Oberflächentemperaturen, keinen Verschleiß
+[tyres.window]
+soft = [70, 95]
+medium = [70, 98]
+hard = [72, 100]
+dry = [70, 98]
+inter = [55, 80]
+wet = [45, 70]
+[rules]
+vocabulary = "gt"

@@ -1,0 +1,442 @@
+# PIT WALL – deutsches Phrasebook
+# Stil: echter Boxenfunk. Kurz, Zahlen zuerst, kein Smalltalk in kritischen Phasen.
+# Platzhalter werden doppelt gefüllt (Anzeige mit Ziffern, Sprache als Wörter).
+# Mehrere Varianten pro Schlüssel; der Engineer wiederholt nie zweimal dieselbe.
+
+race:
+  grid: ["Okay, Startaufstellung. Kupplung bereit, auf die Ampel konzentrieren."]
+  lights_out:
+    - "Ampel aus, los geht's!"
+    - "Und los! Sauber durch Kurve eins."
+    - "Lights out. Pass auf in Kurve eins."
+  start_gained:
+    - "Starker Start. {n} Plätze gewonnen, du bist {pos}."
+    - "Sehr gut, plus {n}. {pos}."
+  start_lost:
+    - "{n} Plätze verloren am Start, {pos}. Ruhig bleiben, das Rennen ist lang."
+    - "{pos}, minus {n}. Kopf runter, wir holen das zurück."
+  start_held:
+    - "Position gehalten, {pos}. Gut gemacht."
+    - "{pos} nach Runde eins. Sauber."
+  overtook:
+    - "Gut gemacht, {pos}. {name} ist hinter dir."
+    - "Stark. {pos}."
+    - "Schöner Move. {pos} jetzt."
+  overtaken:
+    - "{name} ist vorbei, {pos}."
+    - "{pos}, {name} hat dich. Dranbleiben."
+  laps_to_go:
+    - "Noch {laps}."
+    - "{laps} to go."
+  last_lap:
+    - "Letzte Runde. {pos}. Bring ihn nach Hause."
+    - "Weiße Flagge, letzte Runde. Keine Risiken, {pos}."
+  finished:
+    - "Zielflagge! {pos}. {summary}"
+    - "Das war's, {pos}. {summary}"
+  finished_win:
+    - "Zielflagge! Du hast gewonnen! Was für ein Rennen! {summary}"
+  finished_podium:
+    - "Zielflagge, {pos}! Podium! Starke Leistung. {summary}"
+  retired:
+    - "Okay, das war's leider. Box, Auto abstellen."
+
+gap:
+  ahead:
+    - "{gap} auf {name}."
+    - "Abstand nach vorne {gap}, {name}."
+  ahead_closing:
+    - "{gap} auf {name}, du holst {delta} pro Runde."
+    - "{gap} nach vorne, {name}. Holst {delta} pro Runde."
+  drs_soon:
+    - "{gap} auf {name}. In {laps} in DRS-Reichweite."
+    - "{name} {gap} vor dir. So weiter, DRS in etwa {laps}."
+  in_drs:
+    - "Du bist im DRS-Fenster von {name}."
+    - "{gap} auf {name}, DRS ist da. Angriff."
+  close_ahead_gt:
+    - "{gap} auf {name}. Du bist dran, bau Druck auf."
+  behind_closing:
+    - "{name} kommt näher. {gap} hinter dir, er holt {delta} pro Runde."
+    - "Achtung, {name} {gap} hinter dir, macht {delta} pro Runde gut."
+  behind_drs:
+    - "{name} ist in deinem DRS-Fenster. Verteidigen."
+    - "{name} {gap} hinter dir, im DRS. Saubere Ausgänge."
+  behind_close_gt:
+    - "{name} direkt hinter dir, {gap}. Innenbahn zumachen."
+  pulling_away:
+    - "Du fährst weg. {gap} auf {name}, plus {delta} pro Runde."
+  stable:
+    - "Abstand stabil. {gap} nach vorne, {gap_behind} nach hinten."
+  ahead_tyre_offset:
+    - "{gap} auf {name}. Seine Reifen sind {laps} älter."
+  behind_tyre_offset:
+    - "{name} {gap} hinter dir, seine Reifen sind {laps} frischer."
+
+strategy:
+  briefing:
+    - "Reifenbriefing. Wir starten auf {compound}. Plan A: {plan_a}. {plan_b_text}"
+  briefing_no_plan:
+    - "Wir starten auf {compound}. Strategie kommt, sobald wir Daten haben."
+  plan_b_text:
+    - "Plan B: {plan_b}."
+  window_open:
+    - "Boxenfenster ist offen. Runde {lo} bis {hi}."
+    - "Fenster offen, Runde {lo} bis {hi}. Wir sagen dir Bescheid."
+  window_soon:
+    - "Box in etwa {laps}. Plan bleibt {compound}."
+  box_this_lap:
+    - "Box diese Runde, Box diese Runde. {compound}."
+    - "Box, Box. Diese Runde rein, {compound}."
+  box_now:
+    - "Box, Box, Box!"
+  box_under_sc:
+    - "Safety Car! Box, Box, diese Runde. Wir gewinnen {gain}. {compound}."
+    - "Box diese Runde unter Safety Car, {compound}. Das spart {gain}."
+  stay_out_sc:
+    - "Safety Car. Wir bleiben draußen, Stopp lohnt sich nicht."
+  plan_change:
+    - "Planänderung. Wir gehen auf {plan}."
+    - "Neuer Plan: {plan}."
+  plan_a_plus:
+    - "Reifen halten gut. Plan A plus {laps}."
+    - "Die Reifen machen mit, wir verlängern. Plan A plus {laps}."
+  plan_earlier:
+    - "Reifen bauen schneller ab. Wir ziehen den Stopp vor, Runde {lap}."
+  rival_pitted_behind:
+    - "{name} hinter dir ist in der Box. Undercut-Gefahr. Push jetzt."
+    - "{name} ist rein, Undercut-Versuch. Gib alles diese Runde."
+  rival_pitted_ahead:
+    - "{name} vor dir ist in der Box. Freie Fahrt, push."
+    - "{name} hat gestoppt. Jetzt Rundenzeiten fahren."
+  undercut_chance:
+    - "Undercut auf {name} ist möglich, {gap} Rückstand. Wir überlegen."
+  rejoin:
+    - "Nach dem Stopp kommst du als {pos} raus{traffic}."
+  rejoin_traffic: [", direkt hinter {name}"]
+  rivals_to_stop:
+    - "{n} Autos vor dir müssen noch stoppen."
+  teammate_in_pit:
+    - "Achtung, Teamkollege ist gerade in der Box. Rechne mit Wartezeit."
+  pit_confirm:
+    - "Sauberer Stopp. Reifen kalt, vorsichtig in Kurve eins."
+    - "Guter Stopp. Out-Lap, Reifen aufwärmen."
+  pit_exit_position:
+    - "Du bist {pos} nach dem Stopp. {name} {gap} vor dir."
+  pit_limiter:
+    - "Limiter! Limiter!"
+  mandatory_stop_open:
+    - "Pflichtstopp noch offen."
+
+fuel:
+  ok:
+    - "Sprit passt bis ins Ziel. {surplus} Runden Reserve."
+    - "Sprit ist gut. Plus {surplus} Runden."
+  critical:
+    - "Sprit ist knapp. Uns fehlen {deficit} Runden. Ziel {target} pro Runde."
+    - "Wir müssen Sprit sparen. {deficit} Runden zu wenig, Ziel {target} pro Runde."
+  save:
+    - "Bitte Sprit sparen, Ziel {target} pro Runde. Lift and Coast, etwa {lift} vor den großen Bremszonen."
+    - "Sprit sparen. {target} pro Runde. Früher vom Gas, rund {lift}."
+  save_done:
+    - "Sprit passt wieder. Normal fahren."
+  surplus:
+    - "Wir haben {surplus} Runden Sprit extra. Du kannst pushen."
+  laps_in_tank:
+    - "Sprit für {laps} im Tank."
+  refuel:
+    - "Beim Stopp brauchen wir {litres}."
+  empty:
+    - "Sprit fast leer! Box diese Runde!"
+  empty_no_refuel:
+    - "Sprit fast leer! Maximal sparen, früh vom Gas, kurz schalten."
+
+tyres:
+  hot:
+    - "{wheel} zu heiß, {temp}. Etwas schonen."
+    - "Reifen {wheel} überhitzt, {temp}. Weniger rutschen."
+  hot_fronts:
+    - "Vorderreifen zu heiß. Früher bremsen, weniger untersteuern."
+  hot_rears:
+    - "Hinterreifen zu heiß. Sanfter ans Gas."
+  cold:
+    - "Reifen noch kalt, {temp} {wheel}. Vorsichtig."
+    - "Reifen unter dem Fenster. Temperatur aufbauen."
+  in_window:
+    - "Reifen sind jetzt im Fenster."
+  wear_high:
+    - "{wheel} bei {wear} Verschleiß, noch etwa {laps}."
+    - "Reifen {wheel} {wear}. Wir sind bald am Limit."
+  wear_limit:
+    - "Reifen sind am Ende, {wheel} {wear}. Wir müssen rein."
+  puncture:
+    - "Plattfuß {wheel}! Langsam, Box, Box!"
+    - "Reifenschaden {wheel}! Komm rein, vorsichtig."
+  pressure_loss:
+    - "Druckverlust {wheel}. Behalte das im Auge."
+  lockups:
+    - "{count} Verbremser in dieser Runde, meistens {corner}. Vorderreifen schonen."
+    - "Du blockierst oft in {corner}. Etwas weniger Bremsdruck am Anfang."
+  wheelspin:
+    - "Viel Wheelspin am Kurvenausgang. Sanfter ans Gas, die Hinterreifen leiden."
+  deg_report:
+    - "Reifenabbau etwa {deg} pro Runde."
+
+damage:
+  reported:
+    - "Wir sehen Schaden am {part}, {pct}."
+    - "Schaden {part}, {pct}. Wie fühlt sich das Auto an?"
+  severe:
+    - "Schwerer Schaden am {part}. Box diese Runde!"
+  front_wing_box:
+    - "Frontflügel beschädigt, {pct}. Wir wechseln ihn beim Stopp."
+
+flags:
+  yellow:
+    - "Gelb in Sektor {sector}. Vorsicht."
+    - "Gelbe Flagge, Sektor {sector}."
+  double_yellow:
+    - "Doppelt Gelb, Sektor {sector}! Langsam, bereit zum Anhalten."
+  green:
+    - "Grün, grün, grün."
+    - "Strecke frei, Grün."
+  sc_deployed:
+    - "Safety Car, Safety Car. Delta beachten."
+    - "Safety Car ist draußen. Abstand halten, Reifen warmhalten."
+  sc_ending:
+    - "Safety Car kommt diese Runde rein. Mach dich bereit."
+    - "SC in dieser Runde. Restart vorbereiten."
+  vsc_deployed:
+    - "Virtuelles Safety Car. Delta positiv halten."
+  vsc_ending:
+    - "VSC endet. Bereit machen."
+  fcy:
+    - "Full Course Yellow. Tempo runter."
+  blue:
+    - "Blaue Flagge. Lass ihn vorbei."
+    - "Blau. Schnelleres Auto hinter dir."
+  red:
+    - "Rote Flagge! Rote Flagge! Langsam in die Box."
+  penalty:
+    - "Wir haben eine Strafe: {penalty}."
+    - "Achtung, {penalty}."
+  track_limits:
+    - "Track Limits, das war Nummer {count}. Vorsicht."
+    - "Wieder Track Limits. {count} Verwarnungen."
+  black:
+    - "Schwarze Flagge. Box."
+  meatball:
+    - "Schwarz-Orange. Wir müssen reparieren, Box."
+  warning:
+    - "Verwarnung von der Rennleitung."
+  incidents:
+    - "Incidents jetzt bei {count}. Bitte sauber bleiben."
+
+weather:
+  rain_soon:
+    - "Regen in etwa {minutes}, {prob} Wahrscheinlichkeit."
+    - "Radar zeigt Regen in {minutes}."
+  rain_started:
+    - "Es fängt an zu regnen. Achte auf den Grip."
+  crossover_inters:
+    - "Die Strecke wird nass. Intermediates sind jetzt schneller. Box, wenn du bereit bist."
+    - "Crossover erreicht. Wir wollen auf Inters."
+  crossover_wets:
+    - "Sehr nass jetzt. Regenreifen."
+  crossover_slicks:
+    - "Strecke trocknet ab. Bald zurück auf Slicks."
+    - "Trockene Linie entsteht. Slicks sind gleich schneller."
+  track_temp:
+    - "Streckentemperatur {direction} um {delta}, jetzt {temp}."
+  drying:
+    - "Es hört auf zu regnen."
+
+perf:
+  personal_best:
+    - "Persönliche Bestzeit, {time}."
+    - "{time}, das ist deine Beste. Sehr gut."
+  fastest_lap:
+    - "Schnellste Runde des Rennens! {time}."
+  fastest_lap_other:
+    - "{name} mit schnellster Runde, {time}."
+  lap_time:
+    - "{time}. {delta_text}"
+  sector_best:
+    - "Bester Sektor {sector}."
+  consistent:
+    - "Sehr konstant. Weiter so."
+  push:
+    - "Wir brauchen jetzt Rundenzeiten. Push."
+  manage:
+    - "Okay, jetzt Reifen managen. Konstante Runden."
+
+quali:
+  outlap:
+    - "Out-Lap. Reifen aufwärmen, Platz zum Vordermann schaffen."
+  traffic:
+    - "Verkehr. {name} langsam vor dir, {gap}."
+    - "Achtung, {name} auf einer langsamen Runde vor dir."
+  space:
+    - "Freie Strecke vor dir. Gute Lücke."
+  push:
+    - "Push-Runde. Los geht's."
+  result:
+    - "{time}. Das ist {pos}."
+    - "{time}, {pos}. {delta_text}"
+  result_improved:
+    - "{time}, verbessert. Jetzt {pos}."
+  result_slower:
+    - "{time}, keine Verbesserung. Weiter {pos}."
+  time_left:
+    - "Noch {minutes} in der Session."
+  final_chance:
+    - "Das ist die letzte Chance. Alles geben."
+  cooldown:
+    - "Cool-Down-Runde. Reifen abkühlen lassen."
+
+balance:
+  ask:
+    - "Wie ist die Balance?"
+    - "Kurze Frage: Wie fühlt sich die Balance an?"
+  ack:
+    - "Verstanden. {note}"
+    - "Notiert. {note}"
+
+coaching:
+  corner_brake_early:
+    - "{corner}: Du bremst etwa {metres} zu früh. Da liegen {gain}."
+  corner_brake_late:
+    - "{corner}: Etwas zu spät gebremst, du verlierst den Scheitel. {gain} dort."
+  corner_min_speed:
+    - "{corner}: Zu viel Speed abgebaut, {speed} weniger als deine Beste. {gain}."
+  corner_throttle_late:
+    - "{corner}: Früher ans Gas, du verlierst {gain} am Ausgang."
+  corner_coasting:
+    - "{corner}: Du rollst ohne Gas. {gain} liegen da."
+  lockup:
+    - "{corner}: Blockieren beim Anbremsen. Bremsdruck dosieren."
+  wheelspin:
+    - "{corner}: Wheelspin am Ausgang. Gas progressiver."
+  offtrack:
+    - "{corner}: Ausritt. Sauber bleiben."
+  summary:
+    - "Größtes Potenzial in {corner}, etwa {gain}."
+  good:
+    - "Saubere Runde, nichts Auffälliges."
+  tyre_habit:
+    - "Die {wheel} leidet am meisten. Hauptgrund: {habit}."
+
+answer:
+  gap_ahead:
+    - "{gap} auf {name}."
+    - "{gap} nach vorne, {name}. {trend}"
+  gap_behind:
+    - "{name} {gap} hinter dir. {trend}"
+  gap_none_ahead: ["Niemand vor dir. Du führst."]
+  gap_none_behind: ["Niemand hinter dir."]
+  position:
+    - "Du bist {pos}."
+  laps_left:
+    - "Noch {laps}."
+  time_left:
+    - "Noch {minutes}."
+  fuel:
+    - "Sprit für {laps}, {surplus_text}."
+  fuel_simple:
+    - "{litres} im Tank."
+  tyres:
+    - "Reifen: {compound}, {age} alt. {wear_text}{temp_text}"
+  pit_plan:
+    - "Plan A: {plan_a}. {window_text}"
+  pit_none:
+    - "Kein weiterer Stopp geplant. Wir fahren durch."
+  rejoin:
+    - "Wenn du jetzt reinkommst, bist du {pos}{traffic}."
+  last_lap:
+    - "Letzte Runde {time}. {delta_text}"
+  best_lap:
+    - "Deine Beste ist {time}."
+  weather:
+    - "{condition}. Strecke {track_temp}, Luft {air_temp}. {forecast}"
+  damage:
+    - "{damage_text}"
+  damage_none:
+    - "Kein Schaden zu sehen."
+  box_ack:
+    - "Verstanden, Box diese Runde. {compound}."
+    - "Okay, wir machen alles bereit. Box diese Runde."
+  box_sim_none:
+    - "Verstanden. Komm rein, wir sind bereit."
+  radio_mode:
+    - "Verstanden. {mode}."
+  no_data:
+    - "Dazu habe ich keine Daten aus diesem Spiel."
+    - "Das sehe ich in dieser Sim leider nicht."
+  check:
+    - "Moment, ich prüfe das."
+    - "Ich schau nach, Moment."
+  unknown:
+    - "Hab dich nicht verstanden. Nochmal?"
+    - "Sag nochmal, bitte?"
+  ack:
+    - "Verstanden."
+    - "Copy."
+  rival:
+    - "{name} ist {pos}, {gap}. {tyre_text}"
+  laptimes:
+    - "Deine letzten Runden: {times}."
+  sector:
+    - "Sektoren: {sectors}."
+  strategy_compare:
+    - "{text}"
+  corner:
+    - "{text}"
+  no_llm:
+    - "Freie Fragen kann ich gerade nicht beantworten, ich bin offline."
+
+truck:
+  job_start:
+    - "Neuer Auftrag: {cargo} nach {city}. {distance}, Lieferung bis {deadline}."
+  deadline_ok:
+    - "Zeitplan passt. Ankunft etwa {eta}, Deadline {deadline}."
+  deadline_tight:
+    - "Wird knapp mit der Lieferung. Deadline {deadline}, wir sind etwa {late} zu spät."
+  deadline_missed:
+    - "Lieferfrist ist abgelaufen. Trotzdem sicher ankommen."
+  rest_soon:
+    - "Du solltest in {minutes} eine Pause machen. Nächster Rastplatz ansteuern."
+  rest_now:
+    - "Du bist müde. Bitte jetzt einen Rastplatz anfahren."
+  fuel_low:
+    - "Sprit reicht noch etwa {range}. Nächste Tankstelle einplanen."
+  fuel_critical:
+    - "Tank fast leer, {range} Reichweite. Sofort tanken."
+  speed_limit:
+    - "Tempolimit {limit}. Du bist {over} drüber."
+  damage:
+    - "Schaden am {part}, {pct}. Werkstatt einplanen."
+  fine:
+    - "Strafe bekommen, {amount}."
+  delivered:
+    - "Lieferung angekommen! {income} verdient. Gute Fahrt."
+  cancelled:
+    - "Auftrag abgebrochen."
+  ferry:
+    - "Fähre gebucht. Kurze Pause für dich."
+  distance_left:
+    - "Noch {distance} bis zum Ziel, etwa {time}."
+  parking_brake:
+    - "Handbremse ist noch angezogen."
+  lights:
+    - "Es wird dunkel. Licht an."
+
+system:
+  hello:
+    - "Funkcheck. {engineer} hier, ich höre dich."
+    - "Hier ist {engineer}. Funk steht, viel Erfolg."
+  sim_detected:
+    - "{sim} erkannt. Ich bin bereit."
+  no_data:
+    - "Ich bekomme keine Daten mehr vom Spiel."
+  mic_check:
+    - "Ich höre dich laut und deutlich."

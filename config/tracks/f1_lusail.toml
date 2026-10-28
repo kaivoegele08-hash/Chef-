@@ -1,0 +1,4 @@
+# Startwert (Community-Erfahrung F1-Spiel, wird gelernt)
+name = "Lusail"
+pit_loss_s = 26.0
+sc_pit_loss_factor = 0.55

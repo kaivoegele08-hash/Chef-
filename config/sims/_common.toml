@@ -1,0 +1,46 @@
+# Gemeinsame Defaults; sim-spezifische Dateien überschreiben einzelne Werte.
+# Reifenfenster = Oberflächentemperatur in °C, [min, max].
+[tyres]
+wear_limit_pct = 70.0
+pressure_window_kpa = [0, 0]   # 0 = nicht prüfen
+
+[tyres.window]
+soft = [85, 105]
+medium = [88, 108]
+hard = [92, 112]
+inter = [60, 85]
+wet = [45, 70]
+dry = [75, 95]
+
+# Pace-Offsets (s/Runde) und Degradation (s/Runde) als Startwerte für die
+# Strategie, bis echte Daten vorliegen. cliff = Reifenalter, ab dem es steil wird.
+[compounds.soft]
+pace = -0.6
+deg = 0.08
+cliff = 16
+[compounds.medium]
+pace = 0.0
+deg = 0.055
+cliff = 26
+[compounds.hard]
+pace = 0.45
+deg = 0.035
+cliff = 38
+[compounds.inter]
+pace = 1.5
+deg = 0.05
+cliff = 30
+[compounds.wet]
+pace = 3.0
+deg = 0.04
+cliff = 40
+[compounds.dry]
+pace = 0.0
+deg = 0.045
+cliff = 32
+
+[rules]
+two_compound_rule = false   # Pflicht: zwei verschiedene Trockenmischungen im Rennen
+mandatory_stops = 0
+refuelling = true           # Nachtanken beim Stopp erlaubt
+vocabulary = "gt"           # formula | gt | prototype | truck

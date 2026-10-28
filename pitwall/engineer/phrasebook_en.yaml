@@ -1,0 +1,223 @@
+# PIT WALL – English phrasebook (same keys as phrasebook_de.yaml)
+
+race:
+  grid: ["Okay, on the grid. Clutch ready, focus on the lights."]
+  lights_out:
+    - "Lights out, go go go!"
+    - "And away we go. Careful into turn one."
+  start_gained:
+    - "Great start. Gained {n}, you're {pos}."
+    - "Good launch, plus {n}. {pos}."
+  start_lost:
+    - "Lost {n} at the start, {pos}. Stay calm, long race."
+    - "{pos}, minus {n}. Head down, we'll get them back."
+  start_held:
+    - "Held position, {pos}. Good job."
+    - "{pos} after lap one. Clean."
+  overtook:
+    - "Nice move, {pos}. {name} is behind."
+    - "Good job. {pos}."
+  overtaken:
+    - "{name} got past, {pos}."
+    - "{pos}, {name} is through. Stay with him."
+  laps_to_go: ["{laps} to go."]
+  last_lap:
+    - "Last lap. {pos}. Bring it home."
+    - "White flag, final lap. No risks, {pos}."
+  finished: ["Chequered flag! {pos}. {summary}", "That's it, {pos}. {summary}"]
+  finished_win: ["Chequered flag! You won! What a race! {summary}"]
+  finished_podium: ["Chequered flag, {pos}! Podium! Great drive. {summary}"]
+  retired: ["Okay, that's it unfortunately. Box, retire the car."]
+
+gap:
+  ahead: ["{gap} to {name}.", "Gap ahead {gap}, {name}."]
+  ahead_closing: ["{gap} to {name}, you're gaining {delta} a lap."]
+  drs_soon: ["{gap} to {name}. DRS range in about {laps}."]
+  in_drs: ["You're in DRS range of {name}.", "{gap} to {name}, DRS is there. Attack."]
+  close_ahead_gt: ["{gap} to {name}. You're right there, keep the pressure on."]
+  behind_closing: ["{name} closing. {gap} behind, gaining {delta} a lap."]
+  behind_drs: ["{name} is in your DRS window. Defend."]
+  behind_close_gt: ["{name} right behind, {gap}. Cover the inside."]
+  pulling_away: ["You're pulling away. {gap} to {name}, plus {delta} a lap."]
+  stable: ["Gaps stable. {gap} ahead, {gap_behind} behind."]
+  ahead_tyre_offset: ["{gap} to {name}. His tyres are {laps} older."]
+  behind_tyre_offset: ["{name} {gap} behind, on tyres {laps} fresher."]
+
+strategy:
+  briefing: ["Tyre briefing. We start on {compound}. Plan A: {plan_a}. {plan_b_text}"]
+  briefing_no_plan: ["We start on {compound}. Strategy once we have data."]
+  plan_b_text: ["Plan B: {plan_b}."]
+  window_open: ["Pit window is open. Laps {lo} to {hi}."]
+  window_soon: ["Box in about {laps}. Plan stays {compound}."]
+  box_this_lap: ["Box this lap, box this lap. {compound}.", "Box, box. In this lap, {compound}."]
+  box_now: ["Box, box, box!"]
+  box_under_sc: ["Safety car! Box, box, this lap. We gain {gain}. {compound}."]
+  stay_out_sc: ["Safety car. We stay out, a stop doesn't pay."]
+  plan_change: ["Change of plan. We go to {plan}."]
+  plan_a_plus: ["Tyres holding well. Plan A plus {laps}."]
+  plan_earlier: ["Tyres dropping faster. We bring the stop forward, lap {lap}."]
+  rival_pitted_behind: ["{name} behind has pitted. Undercut threat. Push now."]
+  rival_pitted_ahead: ["{name} ahead has pitted. Clear air, push."]
+  undercut_chance: ["Undercut on {name} is possible, {gap} behind. We're looking at it."]
+  rejoin: ["After the stop you'd rejoin {pos}{traffic}."]
+  rejoin_traffic: [", right behind {name}"]
+  rivals_to_stop: ["{n} cars ahead still have to stop."]
+  teammate_in_pit: ["Careful, teammate is in the pits right now. Expect a wait."]
+  pit_confirm: ["Clean stop. Cold tyres, careful into turn one."]
+  pit_exit_position: ["You're {pos} after the stop. {name} {gap} ahead."]
+  pit_limiter: ["Limiter! Limiter!"]
+  mandatory_stop_open: ["Mandatory stop still to do."]
+
+fuel:
+  ok: ["Fuel is good to the end. {surplus} laps margin."]
+  critical: ["Fuel is critical. We're {deficit} laps short. Target {target} a lap."]
+  save: ["Need to save fuel, target {target} a lap. Lift and coast about {lift} before the big stops."]
+  save_done: ["Fuel is fine again. Normal running."]
+  surplus: ["We have {surplus} laps of extra fuel. You can push."]
+  laps_in_tank: ["Fuel for {laps} in the tank."]
+  refuel: ["At the stop we need {litres}."]
+  empty: ["Almost out of fuel! Box this lap!"]
+  empty_no_refuel: ["Almost out of fuel! Save everything, lift early, short shift."]
+
+tyres:
+  hot: ["{wheel} too hot, {temp}. Look after it."]
+  hot_fronts: ["Fronts overheating. Brake earlier, less understeer."]
+  hot_rears: ["Rears overheating. Smoother on the throttle."]
+  cold: ["Tyres still cold, {temp} {wheel}. Careful."]
+  in_window: ["Tyres are in the window now."]
+  wear_high: ["{wheel} at {wear} wear, about {laps} left."]
+  wear_limit: ["Tyres are done, {wheel} {wear}. We need to box."]
+  puncture: ["Puncture {wheel}! Slow down, box, box!"]
+  pressure_loss: ["Pressure loss {wheel}. Keep an eye on it."]
+  lockups: ["{count} lock-ups this lap, mostly {corner}. Look after the fronts."]
+  wheelspin: ["Lots of wheelspin on exit. Smoother throttle, the rears are suffering."]
+  deg_report: ["Degradation about {deg} a lap."]
+
+damage:
+  reported: ["We see damage on the {part}, {pct}."]
+  severe: ["Heavy damage on the {part}. Box this lap!"]
+  front_wing_box: ["Front wing damaged, {pct}. We'll change it at the stop."]
+
+flags:
+  yellow: ["Yellow in sector {sector}. Careful."]
+  double_yellow: ["Double yellow, sector {sector}! Slow down, be prepared to stop."]
+  green: ["Green, green, green."]
+  sc_deployed: ["Safety car, safety car. Watch the delta."]
+  sc_ending: ["Safety car in this lap. Get ready."]
+  vsc_deployed: ["Virtual safety car. Keep the delta positive."]
+  vsc_ending: ["VSC ending. Get ready."]
+  fcy: ["Full course yellow. Slow down."]
+  blue: ["Blue flag. Let him through."]
+  red: ["Red flag! Red flag! Slowly into the pits."]
+  penalty: ["We have a penalty: {penalty}."]
+  track_limits: ["Track limits, that was number {count}. Careful."]
+  black: ["Black flag. Box."]
+  meatball: ["Black and orange. We need to repair, box."]
+  warning: ["Warning from race control."]
+  incidents: ["Incidents now at {count}. Keep it clean."]
+
+weather:
+  rain_soon: ["Rain in about {minutes}, {prob} probability."]
+  rain_started: ["It's starting to rain. Watch the grip."]
+  crossover_inters: ["Track getting wet. Inters are faster now. Box when ready."]
+  crossover_wets: ["Very wet now. Full wets."]
+  crossover_slicks: ["Track drying. Slicks soon."]
+  track_temp: ["Track temperature {direction} by {delta}, now {temp}."]
+  drying: ["Rain is stopping."]
+
+perf:
+  personal_best: ["Personal best, {time}.", "{time}, that's your best. Great."]
+  fastest_lap: ["Fastest lap of the race! {time}."]
+  fastest_lap_other: ["{name} with the fastest lap, {time}."]
+  lap_time: ["{time}. {delta_text}"]
+  sector_best: ["Best sector {sector}."]
+  consistent: ["Very consistent. Keep it up."]
+  push: ["We need lap time now. Push."]
+  manage: ["Okay, manage the tyres now. Consistent laps."]
+
+quali:
+  outlap: ["Out lap. Warm the tyres, make a gap to the car ahead."]
+  traffic: ["Traffic. {name} slow ahead, {gap}."]
+  space: ["Clear track ahead. Good gap."]
+  push: ["Push lap. Let's go."]
+  result: ["{time}. That's {pos}."]
+  result_improved: ["{time}, improved. Now {pos}."]
+  result_slower: ["{time}, no improvement. Still {pos}."]
+  time_left: ["{minutes} left in the session."]
+  final_chance: ["This is the last chance. Give it everything."]
+  cooldown: ["Cool-down lap. Let the tyres cool."]
+
+balance:
+  ask: ["How's the balance?"]
+  ack: ["Copy. {note}", "Noted. {note}"]
+
+coaching:
+  corner_brake_early: ["{corner}: braking about {metres} early. {gain} there."]
+  corner_brake_late: ["{corner}: a bit late on the brakes, you miss the apex. {gain}."]
+  corner_min_speed: ["{corner}: too much speed scrubbed, {speed} slower than your best. {gain}."]
+  corner_throttle_late: ["{corner}: earlier on the throttle, losing {gain} on exit."]
+  corner_coasting: ["{corner}: you're coasting. {gain} there."]
+  lockup: ["{corner}: locking up on entry. Modulate the brake."]
+  wheelspin: ["{corner}: wheelspin on exit. Progressive throttle."]
+  offtrack: ["{corner}: off track. Keep it clean."]
+  summary: ["Biggest gain in {corner}, about {gain}."]
+  good: ["Clean lap, nothing to report."]
+  tyre_habit: ["The {wheel} is suffering most. Main cause: {habit}."]
+
+answer:
+  gap_ahead: ["{gap} to {name}.", "{gap} ahead, {name}. {trend}"]
+  gap_behind: ["{name} {gap} behind. {trend}"]
+  gap_none_ahead: ["Nobody ahead. You're leading."]
+  gap_none_behind: ["Nobody behind."]
+  position: ["You're {pos}."]
+  laps_left: ["{laps} to go."]
+  time_left: ["{minutes} remaining."]
+  fuel: ["Fuel for {laps}, {surplus_text}."]
+  fuel_simple: ["{litres} in the tank."]
+  tyres: ["Tyres: {compound}, {age} old. {wear_text}{temp_text}"]
+  pit_plan: ["Plan A: {plan_a}. {window_text}"]
+  pit_none: ["No more stops planned. We go to the end."]
+  rejoin: ["If you box now you'd be {pos}{traffic}."]
+  last_lap: ["Last lap {time}. {delta_text}"]
+  best_lap: ["Your best is {time}."]
+  weather: ["{condition}. Track {track_temp}, air {air_temp}. {forecast}"]
+  damage: ["{damage_text}"]
+  damage_none: ["No damage showing."]
+  box_ack: ["Copy, box this lap. {compound}."]
+  box_sim_none: ["Copy. Come in, we're ready."]
+  radio_mode: ["Copy. {mode}."]
+  no_data: ["I don't have data for that from this game."]
+  check: ["Stand by, checking."]
+  unknown: ["Didn't catch that. Say again?"]
+  ack: ["Copy.", "Understood."]
+  rival: ["{name} is {pos}, {gap}. {tyre_text}"]
+  laptimes: ["Your last laps: {times}."]
+  sector: ["Sectors: {sectors}."]
+  strategy_compare: ["{text}"]
+  corner: ["{text}"]
+  no_llm: ["I can't answer free questions right now, I'm offline."]
+
+truck:
+  job_start: ["New job: {cargo} to {city}. {distance}, deliver by {deadline}."]
+  deadline_ok: ["On schedule. ETA about {eta}, deadline {deadline}."]
+  deadline_tight: ["Delivery is getting tight. Deadline {deadline}, we're about {late} late."]
+  deadline_missed: ["Delivery window has passed. Still arrive safely."]
+  rest_soon: ["You should take a break in {minutes}. Head for the next rest stop."]
+  rest_now: ["You're tired. Please stop at a rest area now."]
+  fuel_low: ["Fuel range about {range}. Plan the next fuel stop."]
+  fuel_critical: ["Tank almost empty, {range} range. Refuel now."]
+  speed_limit: ["Speed limit {limit}. You're {over} over."]
+  damage: ["Damage on the {part}, {pct}. Plan a workshop visit."]
+  fine: ["You got fined, {amount}."]
+  delivered: ["Delivered! Earned {income}. Drive safe."]
+  cancelled: ["Job cancelled."]
+  ferry: ["Ferry booked. Short break for you."]
+  distance_left: ["{distance} to go, about {time}."]
+  parking_brake: ["Parking brake is still on."]
+  lights: ["Getting dark. Lights on."]
+
+system:
+  hello: ["Radio check. {engineer} here, reading you.", "{engineer} here. Radio's up, good luck."]
+  sim_detected: ["{sim} detected. I'm ready."]
+  no_data: ["I'm not receiving data from the game anymore."]
+  mic_check: ["Loud and clear."]

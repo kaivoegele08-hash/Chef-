@@ -1,0 +1,8 @@
+[tyres.window]
+dry = [80, 105]
+soft = [80, 105]
+medium = [80, 105]
+hard = [85, 110]
+wet = [45, 75]
+[rules]
+vocabulary = "gt"
