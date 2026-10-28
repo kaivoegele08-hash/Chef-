@@ -115,6 +115,7 @@ broadcast_port = 9000
 broadcast_password = "asd"
 display_name = "PITWALL"
 update_interval_ms = 250
+mode = "auto"                       # auto | shm | broadcast
 
 [shm]
 # Wo die Proton-Bridge die gespiegelten Maps ablegt (Linux)

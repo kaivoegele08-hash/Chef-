@@ -142,6 +142,14 @@ class TransportAdapter(SimAdapter):
         await self.source.stop()
         self.status_text = "gestoppt"
 
+    def info(self) -> dict[str, Any]:
+        base = super().info()
+        src_info = getattr(self.source, "info", None)
+        if callable(src_info):
+            base["source"] = src_info()
+        base["decoder"] = {"packets": self.decoder.packets, "errors": self.decoder.errors}
+        return base
+
     async def frames(self) -> AsyncIterator[TelemetryFrame]:  # type: ignore[override]
         async for pkt in self.source.packets():
             self.last_packet_t = time.monotonic()

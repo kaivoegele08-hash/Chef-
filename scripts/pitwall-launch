@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# pitwall-launch – startet pitwall-relay.exe im Proton-Prefix des Spiels.
+#
+# Steam → Spiel → Eigenschaften → Startoptionen:
+#     ~/.local/bin/pitwall-launch %command%
+# optional mit fester Sim:  ~/.local/bin/pitwall-launch --sim acc %command%
+#
+# Standard: Proton startet den Relay selbst über PROTON_REMOTE_DEBUG_CMD (vor dem Spiel, im selben
+# Prefix/Container, wird beim Spielende beendet). Fallback (PITWALL_LAUNCH_MODE=parallel): nach 10 s
+# per "proton run" nachstarten. Details: docs/linux-proton.md
+set -u
+
+SIM=""
+if [ "${1:-}" = "--sim" ] && [ $# -ge 2 ]; then SIM="$2"; shift 2; fi
+APPID="${SteamAppId:-${SteamGameId:-0}}"
+if [ -z "$SIM" ]; then
+  case "$APPID" in
+    244210) SIM=ac ;;
+    805550) SIM=acc ;;
+    266410) SIM=iracing ;;
+    365960) SIM=rf2 ;;
+    2399420) SIM=lmu ;;
+    *) SIM="" ;;
+  esac
+fi
+
+DATA="${XDG_DATA_HOME:-$HOME/.local/share}/pitwall"
+RELAY="${PITWALL_RELAY:-$DATA/pitwall-relay.exe}"
+SRC="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)/pitwall/bridge/pitwall-relay.exe"
+# Relay muss im Steam-Container sichtbar sein → Kopie unter $HOME (aktualisieren, wenn neuer)
+if [ -f "$SRC" ] && { [ ! -f "$RELAY" ] || [ "$SRC" -nt "$RELAY" ]; }; then
+  mkdir -p "$(dirname "$RELAY")" && cp -f "$SRC" "$RELAY"
+fi
+if [ ! -f "$RELAY" ]; then
+  echo "pitwall-launch: $RELAY fehlt – starte Spiel ohne Relay" >&2
+  exec "$@"
+fi
+
+ARGS="--port ${PITWALL_RELAY_PORT:-20790} --hz ${PITWALL_RELAY_HZ:-60}"
+[ -n "$SIM" ] && ARGS="--sim $SIM $ARGS"
+LOG="$DATA/relay-$APPID.log"
+echo "$(date '+%F %T') pitwall-launch appid=$APPID sim=${SIM:-alle} mode=${PITWALL_LAUNCH_MODE:-proton}" >>"$LOG"
+
+if [ "${PITWALL_LAUNCH_MODE:-proton}" = "parallel" ]; then
+  PROTON=""
+  for a in "$@"; do case "$a" in */proton) PROTON="$a" ;; esac; done
+  if [ -n "$PROTON" ]; then
+    # shellcheck disable=SC2086
+    ( sleep 10; "$PROTON" run "$RELAY" $ARGS --quit-after 60 >>"$LOG" 2>&1 ) &
+  else
+    echo "pitwall-launch: kein Proton-Aufruf in der Kommandozeile gefunden" >>"$LOG"
+  fi
+  exec "$@"
+fi
+
+export PROTON_REMOTE_DEBUG_CMD="\"$RELAY\" $ARGS"
+exec "$@"

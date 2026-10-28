@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import io
 import logging
+import os
 import shutil
 import subprocess
 import tempfile
@@ -19,6 +20,11 @@ from typing import Any
 import numpy as np
 
 log = logging.getLogger(__name__)
+
+# PipeWire/Pulse: Funk als Rolle "Assistant" → WirePlumber kann das Spiel dabei leiser machen
+# (docs/linux-proton.md#4-audio-ausgabegerät-und-ducking). Muss vor dem ersten PortAudio-Stream gesetzt sein.
+os.environ.setdefault("PULSE_PROP", "media.role=Assistant")
+os.environ.setdefault("PIPEWIRE_PROPS", '{ media.role = "Assistant" }')
 
 
 def to_wav_bytes(audio: np.ndarray, sr: int) -> bytes:

@@ -144,6 +144,26 @@ def vehicle_class_from_model(model: str) -> VehicleClass:
     return VehicleClass.ROAD
 
 
+def looks_like_acc(static_raw: bytes | None = None, physics_raw: bytes | None = None) -> bool | None:
+    """AC und ACC teilen sich die Map-Namen. ACC hängt Felder hinter das AC-Layout, die bei AC leer sind:
+    Static ``isOnline``/``dryTyresName`` (684/688), Physics ``currentMaxRpm`` (588). None = unklar."""
+    if static_raw is not None and len(static_raw) >= 754:
+        name = static_raw[688:754].decode("utf-16-le", errors="replace").split("\0", 1)[0]
+        if name.strip() and name.isprintable():
+            return True
+        if any(static_raw[684:820]):
+            return None
+        if any(static_raw[:200]):
+            return False
+    if physics_raw is not None and len(physics_raw) >= 592:
+        (max_rpm,) = struct.unpack_from("<f", physics_raw, 588)
+        if 1000.0 < max_rpm < 30000.0:
+            return True
+        if any(physics_raw[:64]) and not any(physics_raw[580:800]):
+            return False
+    return None
+
+
 class ACDecoder(Decoder):
     sim = SimId.AC
 
@@ -167,12 +187,15 @@ class ACDecoder(Decoder):
         self.last_sector_index: int | None = None
         self.sector_times: list[float | None] = [None, None, None]
         self.last_sector_times: list[float | None] = []
+        self.is_acc: bool | None = None  # Shared Memory gehört zu ACC → ignorieren
 
     # ---------------------------------------------------------- Kanäle
     def feed(self, packet: RawPacket) -> TelemetryFrame | None:
         ch = packet.channel
         if ch == "physics":
             if len(packet.data) >= PHYSICS.size:
+                if self.is_acc is None:
+                    self.is_acc = looks_like_acc(None, packet.data)
                 self.physics = PHYSICS.unpack(packet.data)
                 self.shm_t = packet.t
             return None
@@ -180,9 +203,10 @@ class ACDecoder(Decoder):
             if len(packet.data) >= STATIC_15.size and packet.data[:120] != self.static_raw_hash:
                 self.static_raw_hash = packet.data[:120]
                 self.static = _parse_static(packet.data)
+                self.is_acc = looks_like_acc(packet.data, None)
             return None
         if ch == "graphics":
-            if len(packet.data) < GRAPHICS.size:
+            if len(packet.data) < GRAPHICS.size or self.is_acc:
                 return None
             self.graphics = GRAPHICS.unpack(packet.data)
             self.shm_t = packet.t
@@ -523,6 +547,13 @@ class MergedSource(RawSource):
             if pkt is None:
                 return
             yield pkt
+
+    def info(self) -> dict[str, object]:
+        out: dict[str, object] = {}
+        for s in self.sources:
+            fn = getattr(s, "info", None)
+            out[type(s).__name__] = fn() if callable(fn) else ("aktiv" if s in self.started else "nicht gestartet")
+        return out
 
 
 def ac_maps(hz: float) -> list[MapSpec]:

@@ -76,7 +76,9 @@ ignore = ["E501", "RUF001", "RUF002", "RUF003", "SIM108", "B008", "RUF046", "SIM
           "ASYNC240", "B027"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["E741", "SIM118", "RUF059"]
+"tests/*" = ["E741", "SIM118", "RUF059", "ASYNC220"]
+# läuft im Python 3.3 von Assetto Corsa
+"pitwall/bridge/ac_app/*" = ["UP", "RUF"]
 
 [tool.mypy]
 python_version = "3.11"

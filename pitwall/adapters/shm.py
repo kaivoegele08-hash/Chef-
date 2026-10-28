@@ -77,6 +77,7 @@ class RelayHub:
         self.hello: dict[str, dict[str, object]] = {}
         self.datagrams = 0
         self.users = 0
+        self._lock: asyncio.Lock | None = None
 
     @classmethod
     def get(cls, port: int = RELAY_PORT) -> RelayHub:
@@ -86,9 +87,15 @@ class RelayHub:
         return hub
 
     async def start(self) -> None:
-        self.users += 1
-        if self.transport is not None:
-            return
+        # mehrere Adapter (Auto-Erkennung) starten parallel → nur einer bindet den Port
+        if self._lock is None:
+            self._lock = asyncio.Lock()
+        async with self._lock:
+            if self.transport is None:
+                await self._bind()
+            self.users += 1
+
+    async def _bind(self) -> None:
         loop = asyncio.get_running_loop()
         hub = self
 
