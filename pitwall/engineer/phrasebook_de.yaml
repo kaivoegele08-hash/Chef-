@@ -395,6 +395,14 @@ answer:
     - "Freie Fragen kann ich gerade nicht beantworten, ich bin offline."
 
 truck:
+  answer_rest:
+    - "Nächste Pause in {minutes} Spielzeit."
+  answer_fuel:
+    - "{fuel} im Tank, Reichweite etwa {range}."
+  answer_no_route:
+    - "Kein Ziel im Navi gesetzt."
+  answer_no_damage:
+    - "Truck ist in Ordnung, kein nennenswerter Schaden."
   job_start:
     - "Neuer Auftrag: {cargo} nach {city}. {distance}, Lieferung bis {deadline}."
   deadline_ok:

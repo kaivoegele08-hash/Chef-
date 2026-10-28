@@ -198,6 +198,10 @@ answer:
   no_llm: ["I can't answer free questions right now, I'm offline."]
 
 truck:
+  answer_rest: ["Next break in {minutes} of game time."]
+  answer_fuel: ["{fuel} in the tank, range about {range}."]
+  answer_no_route: ["No destination set in the navigation."]
+  answer_no_damage: ["Truck's fine, no real damage."]
   job_start: ["New job: {cargo} to {city}. {distance}, deliver by {deadline}."]
   deadline_ok: ["On schedule. ETA about {eta}, deadline {deadline}."]
   deadline_tight: ["Delivery is getting tight. Deadline {deadline}, we're about {late} late."]

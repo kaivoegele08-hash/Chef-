@@ -87,6 +87,7 @@ pre { white-space: pre-wrap; font-family: var(--mono); font-size: 12px; margin: 
 .hint { background: #2a1d00; border: 1px solid var(--accent); color: var(--accent); border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; display: none; }
 .toast { position: fixed; bottom: 16px; right: 16px; background: var(--panel2); border: 1px solid var(--accent); padding: 10px 14px; border-radius: 8px; display: none; z-index: 50; max-width: 340px; }
 .lights { display: flex; gap: 4px; } .lights i { width: 12px; height: 12px; border-radius: 50%; background: #300; } .lights i.on { background: var(--red); box-shadow: 0 0 8px var(--red); }
+  body.truck .race-only { display: none !important; }
 </style>
 </head>
 <body>
@@ -120,20 +121,24 @@ pre { white-space: pre-wrap; font-family: var(--mono); font-size: 12px; margin: 
   <!-- LIVE -->
   <section class="tab active" id="tab-live">
     <div class="grid live-grid">
-      <div class="panel">
+      <div class="panel" id="truckpanel" style="display:none">
+        <h3>Auftrag <span id="truck-note" class="muted"></span></h3>
+        <div id="truck" class="kv"></div>
+      </div>
+      <div class="panel" id="timingpanel">
         <h3>Live-Timing <span id="timing-note" class="muted"></span></h3>
         <div style="overflow-x:auto"><table id="timing"><thead><tr>
           <th>P</th><th>Fahrer</th><th class="mono">Gap</th><th class="mono">Int</th><th class="mono">Letzte</th><th>Reifen</th><th>St</th>
         </tr></thead><tbody></tbody></table></div>
       </div>
       <div class="grid" style="align-content:start">
-        <div class="panel"><h3>Strecke <span class="muted" id="trackmodel"></span></h3><canvas id="map" height="260"></canvas></div>
+        <div class="panel"><h3>Strecke <span class="muted race-only" id="trackmodel"></span></h3><canvas id="map" height="260"></canvas></div>
         <div class="panel">
           <h3>Mein Auto <span id="pitstate" class="muted"></span></h3>
           <div class="row" style="justify-content:space-between;align-items:flex-start">
             <div>
               <div class="big mono" id="pos">–</div>
-              <div class="muted" id="laptimes" class="mono"></div>
+              <div class="muted race-only" id="laptimes"></div>
             </div>
             <div style="text-align:center"><div class="big mono" id="speed">0</div><div class="muted">km/h · Gang <b id="gear">N</b></div></div>
             <div class="bars" title="Gas / Bremse / Kupplung">
@@ -141,7 +146,7 @@ pre { white-space: pre-wrap; font-family: var(--mono); font-size: 12px; margin: 
               <div class="bar"><i id="brk" style="background:var(--red);height:0"></i></div>
             </div>
           </div>
-          <div style="margin-top:10px" class="tyres" id="tyres"></div>
+          <div style="margin-top:10px" class="tyres race-only" id="tyres"></div>
           <div style="margin-top:10px" class="kv">
             <div>Sprit</div><div><div class="hbar"><i id="fuelbar"></i></div><span class="mono" id="fueltxt">–</span></div>
             <div id="erslbl">ERS</div><div><div class="hbar"><i id="ersbar" style="background:var(--blue)"></i></div><span class="mono" id="erstxt"></span></div>
@@ -159,7 +164,7 @@ pre { white-space: pre-wrap; font-family: var(--mono); font-size: 12px; margin: 
           </div>
           <div class="radio" id="radio"></div>
         </div>
-        <div class="panel">
+        <div class="panel race-only">
           <h3>Strategie kurz</h3>
           <div id="strat-short" class="kv"></div>
           <div class="window" id="window-mini"></div>
@@ -344,9 +349,47 @@ function render() {
   if (document.activeElement !== $("#mode")) $("#mode").value = s.director.mode;
   $("#recbtn").textContent = s.recording ? `■ REC ${s.recording.mb} MB` : "● REC"; $("#recbtn").className = s.recording ? "danger" : "";
   $("#trackmodel").textContent = s.track_model.ready ? `${s.track_model.corners} Kurven gelernt` : `lernt Strecke… (${s.track_model.laps} Rd.)`;
-  renderTiming(s); renderCar(s); renderMap(s); renderRadio(s); renderStratShort(s);
+  const isTruck = !!(s.player && s.player.truck);
+  document.body.classList.toggle("truck", isTruck);
+  $("#truckpanel").style.display = isTruck ? "" : "none"; $("#timingpanel").style.display = isTruck ? "none" : "";
+  if (isTruck) { renderTruck(s); $("#lapinfo").textContent = clockTxt(s.player.truck.game_time_min); }
+  else renderTiming(s);
+  renderCar(s); renderMap(s); renderRadio(s); renderStratShort(s);
   if ($("#tab-strategy").classList.contains("active")) renderStrategy(s);
   if ($("#tab-debug").classList.contains("active")) renderDebug(s);
+}
+
+function clockTxt(min) {
+  if (min == null) return "–";
+  const d = Math.floor(min / 1440), h = Math.floor(min % 1440 / 60), m = min % 60;
+  return `${["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"][d % 7]} ${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+function renderTruck(s) {
+  const t = s.player.truck, p = s.player, d = p.damage || {};
+  const rows = [];
+  const add = (k, v, cls = "") => rows.push(`<div>${k}</div><div class="mono ${cls}">${v}</div>`);
+  if (t.job_active) {
+    add("Ladung", `${esc(t.job_cargo)}${t.job_cargo_mass_kg ? ` · ${(t.job_cargo_mass_kg / 1000).toFixed(1)} t` : ""}`);
+    add("Route", `${esc(t.job_source_city || "?")} → ${esc(t.job_destination_company ? t.job_destination_company + ", " : "")}${esc(t.job_destination_city)}`);
+    if (t.job_income) add("Lohn", `${t.job_income.toLocaleString("de-DE")} ${s.session.sim === "ats" ? "$" : "€"}`);
+    if (t.job_delivery_time_min != null && t.game_time_min != null) {
+      const left = t.job_delivery_time_min - t.game_time_min, eta = t.nav_time_s ? t.nav_time_s / 60 : null;
+      const margin = eta != null ? left - eta : null;
+      add("Deadline", `${clockTxt(t.job_delivery_time_min)} · noch ${Math.floor(left / 60)} h ${left % 60} min`, left < 0 ? "red" : "");
+      if (margin != null) add("Puffer", `${margin >= 0 ? "+" : ""}${Math.round(margin)} min (Spielzeit)`, margin < 0 ? "red" : margin < 60 ? "yellow" : "green");
+    }
+  } else add("Auftrag", '<span class="muted">kein Auftrag</span>');
+  if (t.nav_distance_m) add("Navi", `${(t.nav_distance_m / 1000).toFixed(0)} km` + (t.nav_time_s ? ` · ${Math.floor(t.nav_time_s / 3600)} h ${Math.round(t.nav_time_s % 3600 / 60)} min` : ""));
+  if (t.next_rest_stop_min != null) add("Pause in", `${Math.floor(t.next_rest_stop_min / 60)} h ${t.next_rest_stop_min % 60} min`, t.next_rest_stop_min < 60 ? "yellow" : "");
+  if (t.fuel_range_km != null) add("Reichweite", `${Math.round(t.fuel_range_km)} km` + (t.fuel_avg_consumption_l_per_km ? ` · ${(t.fuel_avg_consumption_l_per_km * 100).toFixed(1)} l/100 km` : ""), t.fuel_range_km < 150 ? "yellow" : "");
+  if (t.speed_limit_kmh) add("Tempolimit", `${Math.round(t.speed_limit_kmh)} km/h` + (t.cruise_control_kmh ? ` · Tempomat ${Math.round(t.cruise_control_kmh)}` : ""), p.speed > t.speed_limit_kmh + 5 ? "red" : "");
+  const wear = ["engine", "transmission", "cabin", "chassis", "wheels", "trailer", "cargo"].filter((k) => d[k] != null && d[k] >= 1);
+  const label = { engine: "Motor", transmission: "Getriebe", cabin: "Kabine", chassis: "Chassis", wheels: "Reifen", trailer: "Auflieger", cargo: "Ladung" };
+  add("Verschleiß", wear.length ? wear.map((k) => `${label[k]} ${d[k]}%`).join(" · ") : '<span class="muted">keiner</span>');
+  if (t.parking_brake) add("Handbremse", "angezogen", "yellow");
+  $("#truck").innerHTML = rows.join("");
+  $("#truck-note").textContent = s.session.car || "";
 }
 
 function renderTiming(s) {
@@ -360,6 +403,10 @@ function renderTiming(s) {
     <td>${tyre(r.tyre, r.age)}</td><td class="mono">${r.stops ?? ""}</td></tr>`).join("");
   tb.innerHTML = rows;
 }
+
+const DMG_DE = { front_wing_left: "Frontflügel L", front_wing_right: "Frontflügel R", rear_wing: "Heckflügel", floor: "Unterboden",
+  diffuser: "Diffusor", sidepod: "Seitenkasten", aero: "Aero", body: "Karosserie", suspension: "Aufhängung", engine: "Motor",
+  gearbox: "Getriebe", transmission: "Getriebe", cabin: "Kabine", chassis: "Chassis", wheels: "Reifen", trailer: "Auflieger", cargo: "Ladung" };
 
 function renderCar(s) {
   const p = s.player, st = s.strategy || {}, caps = new Set(s.caps);
@@ -384,8 +431,8 @@ function renderCar(s) {
   } else { $("#fueltxt").textContent = caps.has("fuel") ? "–" : "keine Daten"; }
   const hasErs = p.ers != null; $("#erslbl").style.display = hasErs ? "" : "none"; $("#ersbar").parentElement.parentElement.style.display = hasErs ? "" : "none";
   if (hasErs) { $("#ersbar").style.width = `${p.ers}%`; $("#erstxt").textContent = `${p.ers}% ${p.ers_mode || ""}${p.drs ? " · DRS OFFEN" : p.drs_avail ? " · DRS verfügbar" : ""}`; }
-  const dmg = Object.entries(p.damage || {}).filter(([k, v]) => v >= 5 && !["engine", "gearbox"].includes(k));
-  $("#damage").innerHTML = dmg.length ? dmg.map(([k, v]) => `<span class="${v > 40 ? "red" : "yellow"}">${k} ${v}%</span>`).join(" · ") : '<span class="muted">keine</span>';
+  const dmg = Object.entries(p.damage || {}).filter(([k, v]) => v >= 5 && (caps.has("truck_job") || !["engine", "gearbox"].includes(k)));
+  $("#damage").innerHTML = dmg.length ? dmg.map(([k, v]) => `<span class="${v > 40 ? "red" : "yellow"}">${DMG_DE[k] || k} ${v}%</span>`).join(" · ") : '<span class="muted">keine</span>';
 }
 
 function renderMap(s) {

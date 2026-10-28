@@ -13,9 +13,22 @@ from pathlib import Path
 from .config import Config
 
 
-def _setup_logging(level: str) -> None:
-    logging.basicConfig(level=getattr(logging, level.upper(), logging.INFO),
-                        format="%(asctime)s %(levelname)-7s %(name)s: %(message)s", datefmt="%H:%M:%S")
+def _setup_logging(level: str, log_dir: Path | None = None) -> None:
+    fmt = "%(asctime)s %(levelname)-7s %(name)s: %(message)s"
+    logging.basicConfig(level=getattr(logging, level.upper(), logging.INFO), format=fmt, datefmt="%H:%M:%S")
+    if log_dir is None:
+        return
+    # Logdatei für Fehlerberichte: <data>/logs/pitwall.log, 3 × 2 MB
+    from logging.handlers import RotatingFileHandler
+
+    try:
+        log_dir.mkdir(parents=True, exist_ok=True)
+        fh = RotatingFileHandler(log_dir / "pitwall.log", maxBytes=2_000_000, backupCount=3, encoding="utf-8")
+    except OSError:
+        return
+    fh.setFormatter(logging.Formatter(fmt))
+    fh.setLevel(logging.DEBUG if level.upper() == "DEBUG" else logging.INFO)
+    logging.getLogger().addHandler(fh)
 
 
 def cmd_run(args: argparse.Namespace, cfg: Config) -> int:
@@ -122,10 +135,16 @@ def cmd_voices(args: argparse.Namespace, cfg: Config) -> int:
         print(f"\nOrdner: {target}")
         return 0
     names = args.names or [str(cfg.get("voice.piper_voice"))]
+    failed = 0
     for name in names:
-        for p in download_piper_voice(name, target):
-            print("geladen:", p)
-    return 0
+        try:
+            for p in download_piper_voice(name, target):
+                print("geladen:", p)
+        except (OSError, ValueError) as exc:
+            failed += 1
+            print(f"Stimme {name} konnte nicht geladen werden: {exc}\n"
+                  f"  Manuell: {name}.onnx und {name}.onnx.json von huggingface.co/rhasspy/piper-voices nach {target}")
+    return 1 if failed else 0
 
 
 def cmd_say(args: argparse.Namespace, cfg: Config) -> int:
@@ -226,6 +245,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     dv = sub.add_parser("devices", help="Audio- und Eingabegeräte auflisten")
     dv.set_defaults(func=cmd_devices)
+    # --lang auch hinter dem Unterbefehl erlauben (pitwall run --lang en)
+    for sp in (r, d, doc, s):
+        sp.add_argument("--lang", choices=["de", "en"], default=argparse.SUPPRESS, help="Sprache des Engineers")
     return p
 
 
@@ -236,7 +258,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.lang:
         overrides["general"] = {"language": args.lang}
     cfg = Config.load(args.config, overrides or None)
-    _setup_logging(args.log or str(cfg.get("general.log_level", "INFO")))
+    _setup_logging(args.log or str(cfg.get("general.log_level", "INFO")),
+                   cfg.data_dir / "logs" if getattr(args, "cmd", None) in ("run", "record") else None)
     if not getattr(args, "cmd", None):
         args = parser.parse_args(["run", *(argv or sys.argv[1:])])
     return int(args.func(args, cfg))

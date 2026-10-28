@@ -20,6 +20,7 @@ if [ -z "$SIM" ]; then
     266410) SIM=iracing ;;
     365960) SIM=rf2 ;;
     2399420) SIM=lmu ;;
+    227300|270880) SIM=ets2 ;;  # nur wenn ETS2/ATS unter Proton läuft
     *) SIM="" ;;
   esac
 fi

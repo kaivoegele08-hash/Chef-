@@ -193,9 +193,14 @@ def download_piper_voice(name: str, target: Path) -> list[Path]:
     for suffix in (".onnx", ".onnx.json"):
         url = f"{PIPER_VOICES_BASE}/{sub}/{name}{suffix}?download=true"
         dest = target / f"{name}{suffix}"
+        part = dest.with_name(dest.name + ".part")
         log.info("Lade %s …", url)
-        with urllib.request.urlopen(url, timeout=60) as resp, open(dest, "wb") as fh:
-            shutil.copyfileobj(resp, fh)
+        try:
+            with urllib.request.urlopen(url, timeout=60) as resp, open(part, "wb") as fh:
+                shutil.copyfileobj(resp, fh)
+            part.replace(dest)  # erst nach vollständigem Download – nie eine halbe Stimme liegen lassen
+        finally:
+            part.unlink(missing_ok=True)
         paths.append(dest)
     return paths
 

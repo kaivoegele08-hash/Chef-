@@ -62,6 +62,8 @@ class Engineer:
 
     # ------------------------------------------------------------- Sinks
     def _on_utterance(self, utt: Utterance) -> None:
+        if self.mode_kind == "truck":
+            utt.lap = 0  # Director-"Runde" ist im Truck-Modus nur ein 5-Minuten-Block
         lap = utt.lap or 0
         self.memory.add(utt.start_t, lap, "engineer", utt.text, utt.event.key)
         for sink in self.sinks:
@@ -195,9 +197,11 @@ class Engineer:
     def _director_input(self, frame: TelemetryFrame) -> DirectorInput:
         me = frame.me
         p = frame.player
+        # Truck-Modus hat keine Runden: Info-Rationierung in 5-Minuten-Blöcken
+        lap = int(frame.t // 300) if self.mode_kind == "truck" else (me.lap if me else 0)
         return DirectorInput(
             t=frame.t,
-            lap=me.lap if me else 0,
+            lap=lap,
             lap_distance_m=me.lap_distance_m if me else None,
             speed_ms=p.speed_ms,
             throttle=p.throttle,

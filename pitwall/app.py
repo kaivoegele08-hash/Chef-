@@ -200,7 +200,10 @@ class PitWallApp:
             elif ev.kind is StateEventKind.LIGHTS_OUT:
                 self.long_memory.set_start_position(self.state.start_position)
             elif ev.kind is StateEventKind.CHEQUERED:
-                asyncio.get_event_loop().call_later(20.0, self._finish_session)
+                if self._loop is not None:
+                    self._loop.call_later(20.0, self._finish_session)
+                else:
+                    self._finish_session()
         if not self.session_started and frame.me is not None:
             self.session_started = True
             s = frame.session

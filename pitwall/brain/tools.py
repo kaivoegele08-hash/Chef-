@@ -273,6 +273,40 @@ def get_driver_history(eng: Engineer, _: dict[str, Any]) -> dict[str, Any]:
                                    f.session.car_name)
 
 
+def get_truck_job(eng: Engineer, _: dict[str, Any]) -> dict[str, Any]:
+    """ETS2/ATS: Auftrag, Zeitplan (Spielzeit), Pausenbedarf, Sprit, Tempolimit, Schäden."""
+    f = eng.frame
+    tr = f.player.truck if f else None
+    if f is None or tr is None:
+        return _no("Kein Truck-Spiel aktiv")
+    p = f.player
+    eta_min = (tr.nav_time_s or 0) / 60.0 if tr.nav_time_s else None
+    remaining = (tr.job_delivery_time_min - tr.game_time_min) if (
+        tr.job_delivery_time_min is not None and tr.game_time_min is not None) else None
+    scale = f.raw_extra.get("time_scale") or None
+    d = p.damage
+    return {
+        "game": str(f.sim), "truck": f.session.car_name, "game_clock_min": tr.game_time_min,
+        "job": {"active": tr.job_active, "cargo": tr.job_cargo, "from": tr.job_source_city,
+                "to": f"{tr.job_destination_company}, {tr.job_destination_city}".strip(", "),
+                "income": tr.job_income, "planned_km": tr.job_planned_distance_km,
+                "cargo_mass_kg": _r(tr.job_cargo_mass_kg, 0), "cargo_damage_pct": _r(d.cargo, 1)},
+        "schedule_game_minutes": {"deadline_in": remaining, "eta_in": _r(eta_min, 0),
+                                  "margin": _r(remaining - eta_min, 0) if remaining is not None and eta_min else None},
+        "eta_real_minutes": _r(eta_min / scale, 0) if eta_min and scale else None,
+        "nav_distance_km": _r((tr.nav_distance_m or 0) / 1000, 1) if tr.nav_distance_m else None,
+        "rest_needed_in_game_min": tr.next_rest_stop_min,
+        "fuel": {"litres": _r(p.fuel_l, 0), "capacity_l": _r(p.fuel_capacity_l, 0), "range_km": _r(tr.fuel_range_km, 0),
+                 "avg_l_per_100km": _r((tr.fuel_avg_consumption_l_per_km or 0) * 100, 1) or None,
+                 "warning": tr.fuel_warning},
+        "speed_kmh": _r(p.speed_ms * 3.6, 0), "speed_limit_kmh": _r(tr.speed_limit_kmh, 0),
+        "cruise_control_kmh": _r(tr.cruise_control_kmh, 0),
+        "wear_pct": {k: _r(getattr(d, k), 1) for k in ("engine", "transmission", "cabin", "chassis", "wheels",
+                                                        "trailer")},
+        "note": "Deadline/ETA in Spielminuten (Spielzeit läuft komprimiert).",
+    }
+
+
 def _name(eng: Engineer, idx: int) -> str:
     f = eng.frame
     car = f.car(idx) if f else None
@@ -310,6 +344,8 @@ TOOLS: dict[str, tuple[ToolFn, str, dict[str, Any]]] = {
                              "(für dieses Rennen und langfristig).",
                              {"text": {"type": "string"}, "kind": {"type": "string",
                                                                    "enum": ["balance", "note", "setup"]}}),
+    "get_truck_job": (get_truck_job, "Nur ETS2/ATS: Auftrag (Ladung, Ziel, Lohn), Zeitplan gegen Deadline, "
+                      "Pausenbedarf, Sprit/Reichweite, Tempolimit, Verschleiß.", {}),
     "get_driver_history": (get_driver_history, "Langzeitwissen für Sim/Strecke/Auto: typischer Verbrauch, "
                            "Boxenverlust, beste Zeiten, frühere Notizen, Schwachkurven.", {}),
 }

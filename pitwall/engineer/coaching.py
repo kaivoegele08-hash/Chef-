@@ -60,12 +60,28 @@ class LapTrace:
         self.spin = np.zeros(self.n, dtype=bool)
         self.off = np.zeros(self.n, dtype=bool)
         self.filled = np.zeros(self.n, dtype=bool)
+        self._prev: tuple[int, float, float, float, float, float] | None = None
 
     def add(self, dist: float, t: float, speed: float, throttle: float, brake: float, steer: float, lock: bool,
             spin: bool, off: bool) -> None:
         i = int(dist / BIN)
         if not 0 <= i < self.n:
             return
+        # Lücken seit dem letzten Sample linear füllen (niedrige Abtastraten: 10 Hz × 70 m/s = 7 m > BIN)
+        prev = self._prev
+        if prev is not None and 1 < i - prev[0] <= 12:
+            pi, pt, ps, pth, pb, pst = prev
+            for j in range(pi + 1, i):
+                if self.filled[j]:
+                    continue
+                a = (j - pi) / (i - pi)
+                self.t[j] = pt + (t - pt) * a
+                self.speed[j] = ps + (speed - ps) * a
+                self.throttle[j] = pth + (throttle - pth) * a
+                self.brake[j] = pb + (brake - pb) * a
+                self.steer[j] = pst + (steer - pst) * a
+                self.filled[j] = True
+        self._prev = (i, t, speed, throttle, brake, steer)
         if not self.filled[i]:
             self.t[i] = t
         self.speed[i] = speed if np.isnan(self.speed[i]) else min(self.speed[i], speed) if brake > 0.1 else speed

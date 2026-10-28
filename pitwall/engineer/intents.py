@@ -44,6 +44,10 @@ INTENT_PATTERNS: list[tuple[str, list[str]]] = [
                    r"\bcar (in front|ahead)\b", r"\bto the car ahead\b", r"\babstand vorne\b"]),
     ("gap_behind", [r"\bnach hinten\b", r"\bhintermann\b", r"\bhinter mir\b", r"\bgap behind\b",
                     r"\bcar behind\b", r"\babstand hinten\b"]),
+    ("rest", [r"\bpause\b", r"\bmüde\b", r"\brast\w*\b", r"\bschlafen\b", r"\btired\b", r"\btake a break\b",
+              r"\brest stop\b"]),
+    ("distance_left", [r"\bwie weit (noch|ist es)\b", r"\bnoch (weit|kilometer)\b", r"\bhow far\b",
+                       r"\bdistance (left|to go)\b"]),
     ("fuel", [r"\bsprit\b", r"\bbenzin\b", r"\btank\w*\b", r"\bfuel\b", r"\bverbrauch\b"]),
     ("tyres", [r"\breifen\b", r"\btyres?\b", r"\btires?\b", r"\bgummis?\b"]),
     ("pit_plan", [r"\bboxenstopp\b", r"\bwann (soll ich )?(an die |in die )?box\b", r"\bstrategie\b",
@@ -125,6 +129,8 @@ def answer(intent: Intent, eng: Engineer) -> tuple[str, dict[str, Any]] | tuple[
         return "balance.ack", {"note": sp.text("Wir schauen uns das an." if de else "We'll look at it.")}
     if me is None:
         return "answer.no_data", {}
+    if eng.mode_kind == "truck":
+        return _truck_answer(name, eng)
 
     if name in ("gap_ahead", "gap_behind"):
         if not f.has(Capability.OPPONENTS):
@@ -351,3 +357,40 @@ def _laps_float(sp: Any, value: float) -> Spoken:
     d = sp.decimal(value, 1)
     unit = "Runden" if sp.lang == "de" else "laps"
     return Spoken(f"{d.display} {unit}", f"{d.spoken} {unit}")
+
+
+def _truck_answer(name: str, eng: Engineer) -> tuple[str, dict[str, Any]] | None:
+    """Instant-Antworten im ETS2/ATS-Modus; alles andere geht an Claude."""
+    f = eng.frame
+    sp = eng.speaker
+    tr = f.player.truck if f else None
+    if f is None or tr is None:
+        return "answer.no_data", {}
+    if name == "rest":
+        if tr.next_rest_stop_min is None:
+            return "answer.no_data", {}
+        if tr.next_rest_stop_min <= 0:
+            return "truck.rest_now", {}
+        return "truck.answer_rest", {"minutes": sp.minutes(tr.next_rest_stop_min)}
+    if name in ("distance_left", "time_left", "laps_left"):
+        if not tr.nav_distance_m:
+            return "truck.answer_no_route", {}
+        scale = f.raw_extra.get("time_scale") or 1.0
+        real_min = (tr.nav_time_s or 0) / max(1.0, float(scale)) / 60.0
+        return "truck.distance_left", {"distance": sp.km(tr.nav_distance_m / 1000), "time": sp.minutes(real_min)}
+    if name == "fuel":
+        if f.player.fuel_l is None:
+            return "answer.no_data", {}
+        return "truck.answer_fuel", {"fuel": sp.litres(f.player.fuel_l, 0),
+                                     "range": sp.km(tr.fuel_range_km or 0)}
+    if name == "damage":
+        d = f.player.damage
+        worst = max(((k, getattr(d, k) or 0.0) for k in ("engine", "transmission", "cabin", "chassis", "wheels",
+                                                          "trailer")), key=lambda kv: kv[1])
+        if worst[1] < 5:
+            return "truck.answer_no_damage", {}
+        from .truck import DAMAGE_PARTS
+
+        part = DAMAGE_PARTS[worst[0]][0 if sp.lang == "de" else 1]
+        return "truck.damage", {"part": sp.text(part), "pct": sp.percent(worst[1])}
+    return None
