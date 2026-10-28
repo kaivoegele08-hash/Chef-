@@ -67,14 +67,14 @@ class Engineer:
         for sink in self.sinks:
             try:
                 sink(utt)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 log.exception("Utterance-Sink fehlgeschlagen")
 
     def _on_interrupt(self, utt: Utterance) -> None:
         for sink in self.interrupt_sinks:
             try:
                 sink(utt)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 log.exception("Interrupt-Sink fehlgeschlagen")
 
     # --------------------------------------------------------- Konfig
@@ -170,7 +170,7 @@ class Engineer:
             self._last_strategy_t = frame.t
             try:
                 self.snapshot = self.strategy.update(frame, state)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 log.exception("Strategie-Update fehlgeschlagen")
 
         ctx = self._ctx(frame, state, events)
@@ -178,7 +178,7 @@ class Engineer:
         for d in self.detectors:
             try:
                 new_events.extend(d.update(ctx))
-            except Exception:  # noqa: BLE001
+            except Exception:
                 log.exception("Detektor %s fehlgeschlagen", d.name)
         for e in new_events:
             for sink in self.event_sinks:

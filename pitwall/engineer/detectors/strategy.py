@@ -58,14 +58,14 @@ class StrategyDetector(Detector):
             plan_b_text = Spoken("", "")
             if b is not None:
                 rendered = describe_plan(b, sp)
-                plan_b_text = Spoken(f"Plan B: {rendered.display}." if sp.lang == "de" else f"Plan B: {rendered.display}.",
+                plan_b_text = Spoken(f"Plan B: {rendered.display}.",
                                      f"Plan B: {rendered.spoken}.")
             out.append(ctx.event("strategy.briefing", Priority.INFO, "strategy", ttl=40, allow_in_silence=False,
                                  compound=comp, plan_a=describe_plan(plan_a, sp), plan_b_text=plan_b_text))
             self.announced_stop_lap = snap.next_stop_lap
             self.announced_plan_label = plan_a.label
 
-        if me.lap < 1 or s.phase is not SessionPhase.RUNNING and s.phase is not SessionPhase.UNKNOWN:
+        if me.lap < 1 or (s.phase is not SessionPhase.RUNNING and s.phase is not SessionPhase.UNKNOWN):
             return out
 
         # Boxenausfahrt

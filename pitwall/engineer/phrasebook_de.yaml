@@ -324,7 +324,7 @@ coaching:
   good:
     - "Saubere Runde, nichts Auffälliges."
   tyre_habit:
-    - "Die {wheel} leidet am meisten. Hauptgrund: {habit}."
+    - "Der Reifen {wheel} leidet am meisten. Hauptgrund: {habit}."
 
 answer:
   gap_ahead:

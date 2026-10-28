@@ -705,7 +705,8 @@ class RaceSimulator:
                 wear_rate *= 1.5
             for w, f in enumerate((1.0, 0.82, 0.78, 0.7)):
                 car.wear[w] = min(100.0, car.wear[w] + wear_rate * f * self.rng.uniform(0.9, 1.1))
-            if self.leader_finished or (self.quali and self.session_t > self.scn.quali_minutes * 60):
+            if self.leader_finished or (self.quali and self.session_t > self.scn.quali_minutes * 60) or (
+                    not self.quali and car.laps_completed >= self.total_laps):
                 car.finished = True
             if car.retire_lap and car.lap >= car.retire_lap and not car.is_player:
                 car.status = CarStatus.RETIRED

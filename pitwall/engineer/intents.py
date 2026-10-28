@@ -174,16 +174,17 @@ def answer(intent: Intent, eng: Engineer) -> tuple[str, dict[str, Any]] | tuple[
         if fs.laps_in_tank is None:
             return "answer.fuel_simple", {"litres": sp.litres(fs.fuel_l)}
         if fs.surplus_laps is None:
-            surplus = Spoken("Ziel unbekannt" if de else "target unknown", "Ziel unbekannt" if de else "target unknown")
+            surplus = Spoken("Bedarf noch unbekannt" if de else "target unknown",
+                             "Bedarf noch unbekannt" if de else "target unknown")
         elif fs.surplus_laps >= 0:
             v = sp.laps(fs.surplus_laps, 1)
-            surplus = Spoken(f"{'plus' if de else 'plus'} {v.display} {'bis ins Ziel' if de else 'to the end'}",
-                             f"plus {v.spoken} {'bis ins Ziel' if de else 'to the end'}")
+            surplus = Spoken(f"{v.display} {'Runden Reserve' if de else 'laps margin'}",
+                             f"{v.spoken} {'Runden Reserve' if de else 'laps margin'}")
         else:
             v = sp.laps(-fs.surplus_laps, 1)
             t = sp.litres(fs.target_per_lap_l or 0, 2)
-            surplus = Spoken(f"{'minus' if de else 'minus'} {v.display}, {'Ziel' if de else 'target'} {t.display}",
-                             f"minus {v.spoken}, {'Ziel' if de else 'target'} {t.spoken}")
+            surplus = Spoken(f"{v.display} {'Runden zu wenig, Ziel' if de else 'laps short, target'} {t.display}",
+                             f"{v.spoken} {'Runden zu wenig, Ziel' if de else 'laps short, target'} {t.spoken}")
         return "answer.fuel", {"laps": _laps_float(sp, fs.laps_in_tank), "surplus_text": surplus}
 
     if name == "tyres":

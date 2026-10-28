@@ -118,7 +118,7 @@ class AudioPlayer:
                     chunk = x[pos:pos + block]
                     stream.write(chunk.reshape(-1, 1))
                     pos += block
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             log.warning("Audio-Ausgabe fehlgeschlagen: %s", exc)
             return False
         return True

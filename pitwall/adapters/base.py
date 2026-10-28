@@ -60,7 +60,7 @@ class Decoder(abc.ABC):
         self.packets += 1
         try:
             return self.feed(packet)
-        except Exception as exc:  # noqa: BLE001 - absichtlich breit, Adapter darf nie sterben
+        except Exception as exc:
             self.errors += 1
             if self.errors <= 5 or self.errors % 500 == 0:
                 log.warning("%s: Paket verworfen (%s: %s), Fehler gesamt %d", self.sim, type(exc).__name__, exc,

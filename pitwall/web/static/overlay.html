@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PIT WALL Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* Transparenter Hintergrund für OBS-Browserquelle (Breite 1920, Höhe 1080 empfohlen) */
+html, body { margin: 0; background: transparent; overflow: hidden; font-family: "Titillium Web", system-ui, sans-serif; }
+body.preview { background: repeating-linear-gradient(45deg, #222 0 20px, #2a2a2a 20px 40px); }
+#box { position: fixed; left: 48px; bottom: 64px; width: 620px; transform-origin: left bottom; opacity: 0; transform: translateX(-30px);
+  transition: opacity .25s ease, transform .25s ease; filter: drop-shadow(0 8px 24px rgba(0,0,0,.55)); }
+#box.show { opacity: 1; transform: translateX(0); }
+#box.right { left: auto; right: 48px; }
+.top { display: flex; align-items: stretch; height: 54px; background: rgba(10, 12, 16, .92); border-radius: 10px 10px 0 0; overflow: hidden; }
+.team { width: 10px; background: var(--team, #f5c518); }
+.label { display: flex; flex-direction: column; justify-content: center; padding: 0 16px; color: #fff; min-width: 170px; }
+.label .k { font-size: 12px; letter-spacing: 3px; color: #aab; text-transform: uppercase; }
+.label .n { font-size: 22px; font-weight: 700; line-height: 1.05; }
+canvas { flex: 1; height: 54px; }
+.sub { background: rgba(255, 255, 255, .96); color: #0b0d10; font-size: 26px; font-weight: 700; padding: 12px 18px; border-radius: 0 0 10px 10px;
+  min-height: 38px; line-height: 1.25; border-left: 10px solid var(--team, #f5c518); }
+.sub .w { opacity: .18; transition: opacity .12s; } .sub .w.on { opacity: 1; }
+.driver .label .n { color: #6cb6ff; }
+.crit .sub { border-left-color: #e10600; }
+</style>
+</head>
+<body>
+<div id="box">
+  <div class="top"><div class="team"></div><div class="label"><span class="k">Team Radio</span><span class="n" id="who">Max</span></div><canvas id="wave" width="440" height="54"></canvas></div>
+  <div class="sub" id="sub"></div>
+</div>
+<script>
+"use strict";
+const qs = new URLSearchParams(location.search);
+if (qs.get("preview")) document.body.classList.add("preview");
+if (qs.get("pos") === "right") document.getElementById("box").classList.add("right");
+const scale = parseFloat(qs.get("scale") || "1"); document.getElementById("box").style.transform += ` scale(${scale})`;
+const box = document.getElementById("box"), sub = document.getElementById("sub"), who = document.getElementById("who"), cv = document.getElementById("wave"), ctx = cv.getContext("2d");
+let engineer = "Engineer", env = [], envStart = 0, hideTimer = null, wordTimers = [], speaking = false, pttActive = false;
+
+function show() { box.classList.add("show"); clearTimeout(hideTimer); }
+function hideLater(ms) { clearTimeout(hideTimer); hideTimer = setTimeout(() => { box.classList.remove("show"); speaking = false; }, ms); }
+function words(text, duration) {
+  wordTimers.forEach(clearTimeout); wordTimers = [];
+  const ws = text.split(/\s+/).filter(Boolean); sub.innerHTML = ws.map(w => `<span class="w">${w.replace(/</g, "&lt;")}</span> `).join("");
+  const spans = sub.querySelectorAll(".w"); const per = (duration * 1000) / Math.max(1, ws.length);
+  spans.forEach((s, i) => wordTimers.push(setTimeout(() => s.classList.add("on"), i * per * 0.92)));
+}
+function draw() {
+  const W = cv.width = cv.clientWidth, H = cv.height = 54; ctx.clearRect(0, 0, W, H);
+  const bars = 48, bw = W / bars; const t = (performance.now() - envStart) / 1000;
+  for (let i = 0; i < bars; i++) {
+    let a = 0.06;
+    if (speaking && env.length) { const idx = Math.floor((t + (i - bars) * 0.012) * 30); const v = env[Math.max(0, Math.min(env.length - 1, idx))] || 0; a = 0.08 + v * (0.6 + 0.4 * Math.sin(i * 1.7 + t * 9)) ; }
+    else if (pttActive) { a = 0.15 + 0.25 * Math.abs(Math.sin(i * 0.9 + performance.now() / 120)); }
+    const h = Math.max(3, a * H); ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--team") || "#f5c518";
+    ctx.globalAlpha = 0.9; ctx.fillRect(i * bw + 2, (H - h) / 2, bw - 4, h);
+  }
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+
+function connect() {
+  const ws = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws/overlay`);
+  ws.onmessage = (ev) => {
+    const m = JSON.parse(ev.data);
+    if (m.type === "hello") { engineer = m.engineer || engineer; document.documentElement.style.setProperty("--team", m.team_color || "#f5c518"); }
+    else if (m.type === "radio") {
+      box.classList.remove("driver"); box.classList.toggle("crit", m.priority === "CRITICAL"); who.textContent = engineer; show();
+      words(m.text, m.duration_s || 3); speaking = true; env = []; envStart = performance.now(); hideLater((m.duration_s || 3) * 1000 + 2500);
+    } else if (m.type === "speech" && m.kind === "sentence") {
+      env = m.env || []; envStart = performance.now(); speaking = true; show(); hideLater(m.duration * 1000 + 2500);
+    } else if (m.type === "speech" && (m.kind === "end" || m.kind === "interrupted")) { hideLater(1800); }
+    else if (m.type === "driver") { box.classList.add("driver"); box.classList.remove("crit"); who.textContent = qs.get("driver") || "Fahrer"; show(); words(m.text, 1.2); hideLater(3500); }
+    else if (m.type === "ptt") { pttActive = m.pressed; if (m.pressed) { box.classList.add("driver"); who.textContent = qs.get("driver") || "Fahrer"; sub.textContent = "…"; show(); } }
+  };
+  ws.onclose = () => setTimeout(connect, 1500);
+}
+connect();
+if (qs.get("preview")) { setTimeout(() => { show(); words("Box diese Runde, Box diese Runde. Hard.", 2.5); speaking = true; env = Array.from({ length: 80 }, (_, i) => Math.abs(Math.sin(i / 4))); envStart = performance.now(); }, 400); }
+</script>
+</body>
+</html>

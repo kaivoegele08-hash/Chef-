@@ -66,7 +66,7 @@ class VoiceOutput:
         if self.on_event:
             try:
                 self.on_event(ev)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 log.exception("Speech-Event-Sink fehlgeschlagen")
 
     def interrupt(self) -> None:
@@ -156,7 +156,7 @@ class VoiceOutput:
                     pending.cancel()
                 self.player.stop()
                 raise
-            except Exception:  # noqa: BLE001
+            except Exception:
                 log.exception("Sprachausgabe fehlgeschlagen")
                 self._emit(SpeechEvent("end", utterance_id, "", total, priority=priority))
                 return total

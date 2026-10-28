@@ -146,7 +146,7 @@ class ElevenLabsTTS(TTSProvider):
         req = urllib.request.Request(url, data=body, method="POST",
                                      headers={"xi-api-key": key, "Content-Type": "application/json",
                                               "Accept": "audio/pcm"})
-        with urllib.request.urlopen(req, timeout=8) as resp:  # noqa: S310 - feste HTTPS-URL
+        with urllib.request.urlopen(req, timeout=8) as resp:
             pcm = resp.read()
         audio = np.frombuffer(pcm, dtype="<i2").astype(np.float32) / 32768.0
         return audio, self.sr
@@ -194,7 +194,7 @@ def download_piper_voice(name: str, target: Path) -> list[Path]:
         url = f"{PIPER_VOICES_BASE}/{sub}/{name}{suffix}?download=true"
         dest = target / f"{name}{suffix}"
         log.info("Lade %s …", url)
-        with urllib.request.urlopen(url, timeout=60) as resp, open(dest, "wb") as fh:  # noqa: S310
+        with urllib.request.urlopen(url, timeout=60) as resp, open(dest, "wb") as fh:
             shutil.copyfileobj(resp, fh)
         paths.append(dest)
     return paths

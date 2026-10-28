@@ -48,11 +48,11 @@ def create_adapter(key: str, config: Config, **kwargs: Any) -> SimAdapter:
 
 def available_adapters() -> list[dict[str, str]]:
     out = []
-    for key, (mod, cls, name) in ADAPTERS.items():
+    for key, (mod, _cls, name) in ADAPTERS.items():
         try:
             importlib.import_module(mod)
             ok = "ok"
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             ok = f"nicht ladbar: {exc}"
         out.append({"key": key, "name": name, "status": ok})
     return out
@@ -88,7 +88,7 @@ class AutoAdapter(SimAdapter):
         for key in self.candidates:
             try:
                 adapter = create_adapter(key, self.config)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 log.warning("Auto-Erkennung: %s nicht verfügbar (%s)", key, exc)
                 continue
             try:
@@ -110,7 +110,7 @@ class AutoAdapter(SimAdapter):
                         self._queue.put_nowait((key, frame))
                     except asyncio.QueueFull:
                         pass
-        except Exception:  # noqa: BLE001
+        except Exception:
             log.exception("Auto-Erkennung: Adapter %s abgestürzt", key)
 
     async def stop(self) -> None:
@@ -120,7 +120,7 @@ class AutoAdapter(SimAdapter):
         for adapter in self.adapters.values():
             try:
                 await adapter.stop()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
         self._queue.put_nowait(("", None))  # type: ignore[arg-type]
 

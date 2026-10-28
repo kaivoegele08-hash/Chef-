@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PIT WALL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07090c; --panel: #10141a; --panel2: #161b23; --line: #232a35; --text: #e7ecf3; --muted: #8b96a8;
+  --accent: #f5c518; --red: #e10600; --green: #22c55e; --purple: #b26bff; --blue: #3b9eff; --orange: #ff8a1f;
+  --soft: #e10600; --medium: #f5c518; --hard: #e8e8e8; --inter: #22c55e; --wet: #3b9eff; --dry: #d9d9d9;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font-family: "Titillium Web", system-ui, sans-serif; font-size: 14px; }
+button, select, input { font-family: inherit; font-size: 13px; color: var(--text); background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; }
+button { cursor: pointer; } button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); color: #111; border-color: var(--accent); font-weight: 700; }
+button.danger { background: var(--red); border-color: var(--red); }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+header { display: flex; align-items: center; gap: 12px; padding: 8px 14px; background: linear-gradient(90deg, #0d1117, #10141a); border-bottom: 2px solid var(--accent); position: sticky; top: 0; z-index: 10; flex-wrap: wrap; }
+.logo { font-weight: 700; font-size: 18px; letter-spacing: 2px; }
+.logo span { color: var(--accent); }
+.pill { padding: 2px 10px; border-radius: 999px; background: var(--panel2); border: 1px solid var(--line); font-size: 12px; white-space: nowrap; }
+.pill.live { border-color: var(--green); color: var(--green); }
+.pill.off { border-color: var(--red); color: var(--red); }
+.pill.flag-yellow, .pill.flag-double_yellow { background: #8a6d00; border-color: var(--accent); }
+.pill.flag-blue { background: #0b3d7a; } .pill.flag-red { background: var(--red); } .pill.flag-chequered { background: #333; }
+.pill.sc { background: var(--orange); color: #111; font-weight: 700; }
+nav { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; }
+nav button { background: transparent; border: none; border-bottom: 2px solid transparent; border-radius: 0; color: var(--muted); }
+nav button.active { color: var(--text); border-bottom-color: var(--accent); }
+main { padding: 10px; }
+.tab { display: none; } .tab.active { display: block; }
+.grid { display: grid; gap: 10px; }
+.live-grid { grid-template-columns: minmax(330px, 1.1fr) minmax(340px, 1.3fr) minmax(300px, 1fr); }
+@media (max-width: 1200px) { .live-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 760px) { .live-grid { grid-template-columns: 1fr; } header { gap: 6px; } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px; min-width: 0; }
+.panel h3 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; color: var(--muted); font-weight: 600; font-size: 11px; padding: 3px 4px; border-bottom: 1px solid var(--line); }
+td { padding: 3px 4px; border-bottom: 1px solid #161b22; white-space: nowrap; }
+tr.me td { background: rgba(245, 197, 24, .12); }
+tr.me td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+tr.pit td { color: var(--muted); }
+.teambar { display: inline-block; width: 4px; height: 14px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+.tyre { display: inline-flex; width: 18px; height: 18px; border-radius: 50%; border: 3px solid var(--muted); align-items: center; justify-content: center; font-size: 9px; font-weight: 700; }
+.t-soft { border-color: var(--soft); } .t-medium { border-color: var(--medium); } .t-hard { border-color: var(--hard); }
+.t-inter { border-color: var(--inter); } .t-wet { border-color: var(--wet); } .t-dry { border-color: var(--dry); }
+.purple { color: var(--purple); } .green { color: var(--green); } .muted { color: var(--muted); } .red { color: var(--red); } .yellow { color: var(--accent); }
+.big { font-size: 34px; font-weight: 700; line-height: 1; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; }
+.kv div:nth-child(odd) { color: var(--muted); }
+.bars { display: flex; gap: 6px; align-items: flex-end; height: 70px; }
+.bar { width: 18px; background: #1d232d; border-radius: 4px; position: relative; height: 100%; overflow: hidden; }
+.bar i { position: absolute; bottom: 0; left: 0; right: 0; border-radius: 4px; }
+.hbar { height: 10px; background: #1d232d; border-radius: 5px; overflow: hidden; }
+.hbar i { display: block; height: 100%; background: var(--green); }
+.tyres { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.wheel { border-radius: 10px; padding: 8px; background: var(--panel2); border: 2px solid var(--line); text-align: center; }
+.wheel .t { font-size: 22px; font-weight: 700; }
+.radio { display: flex; flex-direction: column; gap: 6px; max-height: 470px; overflow-y: auto; }
+.msg { padding: 6px 9px; border-radius: 8px; background: var(--panel2); border-left: 3px solid var(--muted); }
+.msg.driver { border-left-color: var(--blue); background: #0f1a28; align-self: flex-end; }
+.msg.CRITICAL { border-left-color: var(--red); } .msg.HIGH { border-left-color: var(--orange); }
+.msg.ANSWER { border-left-color: var(--green); } .msg.INFO { border-left-color: var(--accent); }
+.msg small { color: var(--muted); font-size: 11px; display: block; }
+canvas { width: 100%; display: block; }
+.ptt { width: 100%; padding: 14px; font-size: 16px; font-weight: 700; border-radius: 10px; background: #19202b; border: 2px solid var(--line); user-select: none; touch-action: none; }
+.ptt.on { background: var(--red); border-color: var(--red); }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.window { position: relative; height: 26px; background: #1d232d; border-radius: 6px; overflow: hidden; margin: 6px 0; }
+.window .w { position: absolute; top: 0; bottom: 0; background: rgba(34, 197, 94, .35); border: 1px solid var(--green); }
+.window .now { position: absolute; top: -2px; bottom: -2px; width: 3px; background: var(--accent); }
+.window .stop { position: absolute; top: 3px; bottom: 3px; width: 6px; background: var(--red); border-radius: 3px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+.card { background: var(--panel2); border-radius: 10px; padding: 10px; border: 1px solid var(--line); }
+.card.a { border-color: var(--green); } .card.b { border-color: var(--blue); }
+.settings { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; }
+.field { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
+.field label { color: var(--muted); font-size: 12px; }
+.field input, .field select { width: 100%; }
+pre { white-space: pre-wrap; font-family: var(--mono); font-size: 12px; margin: 0; }
+.hint { background: #2a1d00; border: 1px solid var(--accent); color: var(--accent); border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; display: none; }
+.toast { position: fixed; bottom: 16px; right: 16px; background: var(--panel2); border: 1px solid var(--accent); padding: 10px 14px; border-radius: 8px; display: none; z-index: 50; max-width: 340px; }
+.lights { display: flex; gap: 4px; } .lights i { width: 12px; height: 12px; border-radius: 50%; background: #300; } .lights i.on { background: var(--red); box-shadow: 0 0 8px var(--red); }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">PIT<span>WALL</span></div>
+  <span class="pill off" id="conn">offline</span>
+  <span class="pill" id="sim">–</span>
+  <span class="pill" id="track">–</span>
+  <span class="pill" id="sess">–</span>
+  <span class="pill mono" id="lapinfo">–</span>
+  <span class="pill" id="flag">–</span>
+  <span class="pill" id="weather">–</span>
+  <div class="lights" id="lights" style="display:none"><i></i><i></i><i></i><i></i><i></i></div>
+  <select id="mode" title="Gesprächigkeit">
+    <option value="chatty">Gesprächig</option><option value="normal" selected>Normal</option>
+    <option value="important">Nur Wichtiges</option><option value="silent">Stumm</option>
+  </select>
+  <button id="recbtn" title="Aufnahme starten/stoppen">● REC</button>
+  <nav>
+    <button data-tab="live" class="active">Live</button>
+    <button data-tab="strategy">Strategie</button>
+    <button data-tab="coaching">Coaching</button>
+    <button data-tab="debrief">Debrief</button>
+    <button data-tab="settings">Einstellungen</button>
+    <button data-tab="debug">Debug</button>
+  </nav>
+</header>
+<main>
+  <div class="hint" id="hint"></div>
+
+  <!-- LIVE -->
+  <section class="tab active" id="tab-live">
+    <div class="grid live-grid">
+      <div class="panel">
+        <h3>Live-Timing <span id="timing-note" class="muted"></span></h3>
+        <div style="overflow-x:auto"><table id="timing"><thead><tr>
+          <th>P</th><th>Fahrer</th><th class="mono">Gap</th><th class="mono">Int</th><th class="mono">Letzte</th><th>Reifen</th><th>St</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="grid" style="align-content:start">
+        <div class="panel"><h3>Strecke <span class="muted" id="trackmodel"></span></h3><canvas id="map" height="260"></canvas></div>
+        <div class="panel">
+          <h3>Mein Auto <span id="pitstate" class="muted"></span></h3>
+          <div class="row" style="justify-content:space-between;align-items:flex-start">
+            <div>
+              <div class="big mono" id="pos">–</div>
+              <div class="muted" id="laptimes" class="mono"></div>
+            </div>
+            <div style="text-align:center"><div class="big mono" id="speed">0</div><div class="muted">km/h · Gang <b id="gear">N</b></div></div>
+            <div class="bars" title="Gas / Bremse / Kupplung">
+              <div class="bar"><i id="thr" style="background:var(--green);height:0"></i></div>
+              <div class="bar"><i id="brk" style="background:var(--red);height:0"></i></div>
+            </div>
+          </div>
+          <div style="margin-top:10px" class="tyres" id="tyres"></div>
+          <div style="margin-top:10px" class="kv">
+            <div>Sprit</div><div><div class="hbar"><i id="fuelbar"></i></div><span class="mono" id="fueltxt">–</span></div>
+            <div id="erslbl">ERS</div><div><div class="hbar"><i id="ersbar" style="background:var(--blue)"></i></div><span class="mono" id="erstxt"></span></div>
+            <div>Schäden</div><div id="damage" class="mono">–</div>
+          </div>
+        </div>
+      </div>
+      <div class="grid" style="align-content:start">
+        <div class="panel">
+          <h3>Boxenfunk <span class="muted" id="radiomode"></span></h3>
+          <button class="ptt" id="ptt">🎙️ GEDRÜCKT HALTEN ZUM SPRECHEN</button>
+          <div class="row" style="margin:8px 0">
+            <input id="ask" placeholder="Frage tippen, z. B. „Abstand nach vorne?“" style="flex:1">
+            <button id="askbtn" class="primary">Senden</button>
+          </div>
+          <div class="radio" id="radio"></div>
+        </div>
+        <div class="panel">
+          <h3>Strategie kurz</h3>
+          <div id="strat-short" class="kv"></div>
+          <div class="window" id="window-mini"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STRATEGY -->
+  <section class="tab" id="tab-strategy">
+    <div class="cards" id="plans"></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr));margin-top:10px">
+      <div class="panel"><h3>Boxenfenster</h3><div class="window" id="window-big" style="height:36px"></div><div id="window-txt" class="muted"></div></div>
+      <div class="panel"><h3>Wiedereinstieg bei Stopp jetzt</h3><div id="rejoin" class="kv"></div></div>
+      <div class="panel"><h3>Sprit</h3><div id="fuel" class="kv"></div></div>
+      <div class="panel"><h3>Reifen</h3><div id="tyrestat" class="kv"></div></div>
+      <div class="panel"><h3>Gegner (Undercut / noch zu stoppen)</h3><div id="rivals" class="kv"></div></div>
+      <div class="panel"><h3>Wetter</h3><div id="weatherbox" class="kv"></div></div>
+    </div>
+    <div class="panel" style="margin-top:10px"><h3>Rundenzeiten</h3><canvas id="lapchart" height="200"></canvas>
+      <div style="overflow-x:auto"><table id="laps"><thead><tr><th>R</th><th class="mono">Zeit</th><th class="mono">Sprit</th><th>Reifen</th><th>P</th><th>Info</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- COACHING -->
+  <section class="tab" id="tab-coaching">
+    <div class="grid" style="grid-template-columns:minmax(320px,1fr) 2fr">
+      <div class="panel"><h3>Kurven: Zeitverlust vs. Bestrunde <button id="coachrefresh">↻</button></h3>
+        <table id="corners"><thead><tr><th>Kurve</th><th class="mono">Verlust</th><th>Ursache</th><th class="mono">Bremse</th><th class="mono">vMin</th></tr></thead><tbody></tbody></table>
+        <div id="habit" class="muted" style="margin-top:8px"></div>
+      </div>
+      <div class="panel"><h3>Speed · Gas · Bremse (letzte Runde vs. Beste)</h3><canvas id="trace" height="330"></canvas>
+        <div class="muted">Gelb = letzte Runde, Lila = Bestrunde. Senkrechte Linien = gelernte Kurven.</div></div>
+    </div>
+  </section>
+
+  <!-- DEBRIEF -->
+  <section class="tab" id="tab-debrief">
+    <div class="panel"><h3>Debrief <span class="row"><button id="debriefbtn">Aktualisieren</button><button id="debriefllm" class="primary">Mit Claude ausformulieren</button></span></h3>
+      <pre id="debrief">Noch keine Daten.</pre><div id="debriefllmtxt" style="margin-top:10px"></div></div>
+    <div class="panel" style="margin-top:10px"><h3>Langzeitgedächtnis (diese Strecke)</h3><pre id="memory">–</pre></div>
+    <div class="panel" style="margin-top:10px"><h3>Sessions</h3><table id="sessions"><thead><tr><th>#</th><th>Sim</th><th>Strecke</th><th>Typ</th><th>Runden</th><th>Start</th><th>Ergebnis</th><th class="mono">Beste</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="tab" id="tab-settings">
+    <div class="settings">
+      <div class="panel"><h3>Spiel / Quelle</h3>
+        <div class="field"><label>Aktive Quelle</label>
+          <select id="simsel"><option value="auto">Auto-Erkennung</option><option value="simulator">Simulator</option><option value="replay">Replay</option>
+          <option value="f1">F1 24/25 (UDP)</option><option value="gt7">Gran Turismo 7 (PS5)</option><option value="assetto_corsa">Assetto Corsa</option>
+          <option value="acc">ACC</option><option value="iracing">iRacing</option><option value="rfactor2">rFactor 2</option><option value="lmu">Le Mans Ultimate</option><option value="ets2">ETS2 / ATS</option></select></div>
+        <div class="field" id="scnfield"><label>Simulator-Szenario</label>
+          <select id="scenario"><option>default</option><option>undercut</option><option>sc_window</option><option>fuel_critical</option><option>rain</option><option>flashback</option><option>restart</option><option>quali</option><option>gt</option><option>damage</option><option>hot_tyres</option></select></div>
+        <div class="field" id="replayfield"><label>Aufnahme</label><select id="replayfile"></select>
+          <label>Geschwindigkeit</label><select id="replayspeed"><option value="1">Echtzeit</option><option value="2">2×</option><option value="10">10×</option><option value="0">max</option></select></div>
+        <button class="primary" id="simapply">Übernehmen</button>
+        <div class="field" style="margin-top:12px"><label>PS5-IP (GT7)</label><div class="row"><input data-key="gt7.ps5_ip" style="flex:1"><button id="gt7find">Suchen</button></div></div>
+      </div>
+      <div class="panel"><h3>Engineer</h3><div id="set-engineer"></div></div>
+      <div class="panel"><h3>Stimme & Audio</h3><div id="set-voice"></div>
+        <button id="radiotest">Funk testen</button></div>
+      <div class="panel"><h3>Push-to-Talk</h3>
+        <div id="pttinfo" class="muted">–</div>
+        <div class="row" style="margin-top:8px"><button class="primary" id="pttlearn">Taste drücken zum Zuweisen</button></div>
+        <div class="field" style="margin-top:8px"><label>Dashboard-Mikrofon</label>
+          <select id="micmode"><option value="server">Mikrofon am PC (Server)</option><option value="browser">Mikrofon dieses Geräts (Browser)</option></select></div>
+        <p class="muted">Tipp: Im Dashboard Leertaste gedrückt halten = Funk.</p></div>
+      <div class="panel"><h3>Claude (KI) & Kosten</h3><div id="set-brain"></div>
+        <div class="field"><label>ANTHROPIC_API_KEY <span id="sk-anthropic" class="muted"></span></label><input type="password" id="key-anthropic" autocomplete="off" placeholder="sk-ant-… (wird nur lokal in .env gespeichert)"></div>
+        <div class="field"><label>ELEVENLABS_API_KEY <span id="sk-eleven" class="muted"></span></label><input type="password" id="key-eleven" autocomplete="off"></div>
+        <div class="field"><label>ELEVENLABS_VOICE_ID <span id="sk-voice" class="muted"></span></label><input id="key-voice" autocomplete="off"></div>
+        <button id="savekeys">Keys speichern (.env)</button></div>
+      <div class="panel"><h3>Strategie & Sonstiges</h3><div id="set-misc"></div></div>
+    </div>
+    <div class="row" style="margin-top:10px"><button class="primary" id="savecfg">Einstellungen speichern</button><span class="muted" id="cfgmsg"></span></div>
+  </section>
+
+  <!-- DEBUG -->
+  <section class="tab" id="tab-debug">
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+      <div class="panel"><h3>Latenzen (ms)</h3><table id="lat"><thead><tr><th>Messpunkt</th><th>letzte</th><th>Median</th><th>Ziel</th></tr></thead><tbody></tbody></table></div>
+      <div class="panel"><h3>Claude</h3><pre id="brain">–</pre></div>
+      <div class="panel"><h3>Director</h3><pre id="director">–</pre></div>
+      <div class="panel"><h3>Quelle & Datenfelder</h3><pre id="adapter">–</pre></div>
+      <div class="panel"><h3>Stimme / STT / PTT</h3><pre id="voice">–</pre></div>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let S = null, trackMap = [], ws = null, lastRadioLen = -1;
+const LABELS = {
+  "engineer.name": "Name des Engineers", "engineer.driver_name": "Dein Name (Anrede)", "engineer.verbosity": "Gesprächigkeit",
+  "engineer.max_info_per_lap": "Max. Infos pro Runde", "engineer.strategy_update": "KI-Strategie-Update (lap/off)",
+  "engineer.coaching_in_race": "Coaching im Rennen", "engineer.coaching_in_practice": "Coaching im Training",
+  "engineer.tyre_briefing": "Reifenbriefing vor dem Start", "engineer.ask_balance": "Nach Balance fragen",
+  "engineer.quiet_last_corners": "Funkstille letzte N Kurven", "general.language": "Sprache",
+  "general.units_pressure": "Druck-Einheit", "general.units_speed": "Geschwindigkeit",
+  "voice.tts_provider": "Sprachausgabe", "voice.piper_voice": "Piper-Stimme (DE)", "voice.piper_voice_en": "Piper-Stimme (EN)",
+  "voice.output_device": "Audio-Ausgabe", "voice.input_device": "Mikrofon", "voice.radio_fx": "Funk-Effekt",
+  "voice.radio_fx_intensity": "Funk-Effekt Intensität", "voice.volume": "Lautstärke", "voice.stt_model": "Whisper-Modell",
+  "voice.stt_device": "STT-Gerät", "voice.elevenlabs_voice_id": "ElevenLabs Voice-ID",
+  "brain.enabled": "Claude aktiv", "brain.radio_model": "Modell Funk/Fragen", "brain.strategy_model": "Modell Strategie/Debrief",
+  "brain.use_strategy_model": "Strategie-Modell nutzen", "brain.daily_token_limit": "Tageslimit Tokens", "brain.timeout_s": "Timeout (s)",
+  "strategy.fuel_reserve_laps": "Sprit-Reserve (Runden)", "strategy.default_pit_loss_s": "Boxenverlust Standard (s)",
+  "web.update_hz": "Dashboard Hz", "recorder.enabled": "Immer aufnehmen", "f1.port": "F1 UDP-Port", "f1.bind": "F1 Bind-Adresse",
+  "assetto_corsa.mode": "AC-Modus", "acc.broadcast_password": "ACC Broadcast-Passwort", "acc.broadcast_port": "ACC Broadcast-Port",
+  "gt7.heartbeat": "GT7 Heartbeat (A/B/~)", "ptt.backend": "PTT-Backend", "ptt.keyboard_key": "PTT Tastatur",
+  "iracing.allow_pit_commands": "iRacing Pit-Commands erlauben", "sim.active": "Standard-Quelle",
+};
+const OPTIONS = {
+  "engineer.verbosity": ["chatty", "normal", "important", "silent"], "general.language": ["de", "en"],
+  "general.units_pressure": ["psi", "kpa", "bar"], "general.units_speed": ["kmh", "mph"],
+  "engineer.coaching_in_race": ["off", "on_request", "sparse"], "engineer.coaching_in_practice": ["on", "off"],
+  "voice.tts_provider": ["piper", "elevenlabs", "espeak", "none"], "voice.stt_model": ["tiny", "base", "small", "medium", "large-v3"],
+  "voice.stt_device": ["auto", "cuda", "cpu"], "assetto_corsa.mode": ["auto", "shm", "udp"], "gt7.heartbeat": ["A", "B", "~"],
+  "ptt.backend": ["auto", "evdev", "sdl", "none"], "engineer.strategy_update": ["lap", "off"],
+};
+const GROUPS = {
+  "set-engineer": ["engineer.name", "engineer.driver_name", "general.language", "engineer.verbosity", "engineer.max_info_per_lap",
+    "engineer.quiet_last_corners", "engineer.tyre_briefing", "engineer.ask_balance", "engineer.coaching_in_race", "engineer.coaching_in_practice",
+    "general.units_pressure", "general.units_speed"],
+  "set-voice": ["voice.tts_provider", "voice.piper_voice", "voice.piper_voice_en", "voice.output_device", "voice.input_device", "voice.volume",
+    "voice.radio_fx", "voice.radio_fx_intensity", "voice.stt_model", "voice.stt_device", "voice.elevenlabs_voice_id"],
+  "set-brain": ["brain.enabled", "brain.radio_model", "brain.strategy_model", "brain.use_strategy_model", "engineer.strategy_update",
+    "brain.daily_token_limit", "brain.timeout_s"],
+  "set-misc": ["sim.active", "strategy.fuel_reserve_laps", "strategy.default_pit_loss_s", "f1.port", "f1.bind", "assetto_corsa.mode",
+    "acc.broadcast_password", "acc.broadcast_port", "gt7.heartbeat", "ptt.backend", "web.update_hz", "recorder.enabled", "iracing.allow_pit_commands"],
+};
+const CAUSE = { brake_early: "zu früh gebremst", brake_late: "zu spät gebremst", min_speed: "zu viel Speed abgebaut",
+  throttle_late: "spät am Gas", coasting: "Rollen ohne Gas", lockup: "Blockieren", wheelspin: "Wheelspin", offtrack: "Ausritt", "": "–" };
+
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(t._h); t._h = setTimeout(() => t.style.display = "none", 3500); }
+function fmtLap(s) { if (s == null || s <= 0) return "–"; const m = Math.floor(s / 60); const r = (s - m * 60).toFixed(3).padStart(6, "0"); return m ? `${m}:${r}` : (s).toFixed(3); }
+function fmtGap(g) { if (g == null) return "–"; if (g === 0) return "Leader"; return (g > 0 ? "+" : "") + g.toFixed(1); }
+function tyre(c, age) { if (!c) return "–"; const l = {soft:"S",medium:"M",hard:"H",inter:"I",wet:"W",dry:"D"}[c] || c[0].toUpperCase(); return `<span class="tyre t-${c}">${l}</span> <span class="muted mono">${age ?? ""}</span>`; }
+function tempColor(t, win) {
+  if (t == null) return "var(--line)"; const lo = win ? win[0] : 80, hi = win ? win[1] : 105;
+  if (t < lo - 10) return "#2b6cff"; if (t < lo) return "#38bdf8"; if (t <= hi) return "#22c55e"; if (t <= hi + 8) return "#f59e0b"; return "#ef4444";
+}
+async function api(path, opts = {}) {
+  const r = await fetch(path, { headers: { "Content-Type": "application/json" }, ...opts, body: opts.body && typeof opts.body !== "string" && !(opts.body instanceof Blob) ? JSON.stringify(opts.body) : opts.body });
+  if (!r.ok) { const t = await r.text(); throw new Error(t); } return r.json();
+}
+
+// ---------------------------------------------------------------- WebSocket
+function connect() {
+  ws = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws`);
+  ws.onopen = () => { $("#conn").textContent = "verbunden"; $("#conn").className = "pill live"; };
+  ws.onclose = () => { $("#conn").textContent = "offline"; $("#conn").className = "pill off"; setTimeout(connect, 1500); };
+  ws.onmessage = (ev) => {
+    const m = JSON.parse(ev.data);
+    if (m.type === "snapshot") { S = m; if (m.track_map) trackMap = m.track_map; render(); }
+    else if (m.type === "track_map") { trackMap = m.points; }
+    else if (m.type === "radio" || m.type === "driver") { /* kommt mit nächstem Snapshot */ }
+  };
+}
+
+// ------------------------------------------------------------------- Render
+function render() {
+  const s = S; if (!s) return;
+  const ad = s.adapter || {};
+  const active = ad.active ? ad.active.name : ad.name;
+  $("#sim").textContent = active ? (s.live ? active : `${active} – ${ad.status || ""}`) : "–";
+  const hint = (ad.active && ad.active.hint) || ad.hint;
+  $("#hint").style.display = (!s.live && hint) ? "block" : "none"; if (hint) $("#hint").textContent = hint;
+  if (!s.live) { $("#lapinfo").textContent = ad.status || "warte auf Daten"; renderRadio(s); renderDebug(s); return; }
+  const se = s.session, p = s.player, st = s.strategy || {};
+  $("#track").textContent = se.track || "–";
+  $("#sess").textContent = { race: "Rennen", qualifying: "Qualifying", practice: "Training", time_trial: "Zeitfahren", hotlap: "Hotlap", free_drive: "Freie Fahrt" }[se.type] || se.type;
+  $("#lapinfo").textContent = se.total_laps ? `Runde ${p.lap ?? "–"}/${se.total_laps}` : (se.time_left != null ? `${Math.floor(se.time_left / 60)}:${String(Math.floor(se.time_left % 60)).padStart(2, "0")} übrig` : `Runde ${p.lap ?? "–"}`);
+  const flag = $("#flag"); const scTxt = { sc: "SAFETY CAR", vsc: "VSC", fcy: "FCY", ending: "SC ENDET" }[se.sc];
+  if (scTxt) { flag.textContent = scTxt; flag.className = "pill sc"; }
+  else { flag.textContent = { none: "–", green: "GRÜN", yellow: "GELB" + (se.yellow_sectors.length ? " S" + se.yellow_sectors.join(",") : ""), double_yellow: "DOPPELT GELB", blue: "BLAU", red: "ROT", chequered: "ZIEL", white: "LETZTE RUNDE", black: "SCHWARZ", meatball: "SCHADEN" }[se.flag] || se.flag; flag.className = "pill flag-" + se.flag; }
+  const w = se.weather; $("#weather").textContent = `${w.cond === "clear" ? "☀" : w.rain > 0.1 ? "🌧" : "☁"} ${w.air ?? "–"}° / ${w.track ?? "–"}°` + (w.wet != null && w.wet > 0.05 ? ` · nass ${(w.wet * 100).toFixed(0)}%` : "");
+  const lights = $("#lights"); lights.style.display = se.lights ? "flex" : "none";
+  [...lights.children].forEach((el, i) => el.className = i < (se.lights || 0) ? "on" : "");
+  if (document.activeElement !== $("#mode")) $("#mode").value = s.director.mode;
+  $("#recbtn").textContent = s.recording ? `■ REC ${s.recording.mb} MB` : "● REC"; $("#recbtn").className = s.recording ? "danger" : "";
+  $("#trackmodel").textContent = s.track_model.ready ? `${s.track_model.corners} Kurven gelernt` : `lernt Strecke… (${s.track_model.laps} Rd.)`;
+  renderTiming(s); renderCar(s); renderMap(s); renderRadio(s); renderStratShort(s);
+  if ($("#tab-strategy").classList.contains("active")) renderStrategy(s);
+  if ($("#tab-debug").classList.contains("active")) renderDebug(s);
+}
+
+function renderTiming(s) {
+  const tb = $("#timing tbody"); const caps = new Set(s.caps);
+  $("#timing-note").textContent = caps.has("opponents") ? "" : "Sim liefert keine Gegnerdaten";
+  const rows = s.timing.map((r) => `<tr class="${r.me ? "me" : ""} ${r.pit ? "pit" : ""}">
+    <td class="mono">${r.pos ?? ""}</td>
+    <td><span class="teambar" style="background:${r.color || "#555"}"></span>${esc(r.name)}${r.mate ? ' <span class="muted">TM</span>' : ""}${r.pit ? ' <span class="yellow">BOX</span>' : ""}</td>
+    <td class="mono">${r.pos === 1 ? "Leader" : fmtGap(r.gap)}</td><td class="mono">${r.int == null ? "" : r.int.toFixed(1)}</td>
+    <td class="mono ${r.last && r.best && Math.abs(r.last - r.best) < 0.0005 ? "green" : ""}">${fmtLap(r.last)}</td>
+    <td>${tyre(r.tyre, r.age)}</td><td class="mono">${r.stops ?? ""}</td></tr>`).join("");
+  tb.innerHTML = rows;
+}
+
+function renderCar(s) {
+  const p = s.player, st = s.strategy || {}, caps = new Set(s.caps);
+  $("#pos").textContent = p.pos ? `P${p.pos}` : "–";
+  $("#laptimes").innerHTML = `<span class="mono">Aktuell ${fmtLap(p.cur)} · Letzte ${fmtLap(p.last)} · Beste <span class="purple">${fmtLap(p.best)}</span></span>`;
+  $("#speed").textContent = p.speed ?? 0; $("#gear").textContent = p.gear === 0 ? "N" : p.gear < 0 ? "R" : p.gear;
+  $("#thr").style.height = `${(p.throttle || 0) * 100}%`; $("#brk").style.height = `${(p.brake || 0) * 100}%`;
+  $("#pitstate").textContent = { on_track: "", pit_lane: "Boxengasse", pit_box: "In der Box", garage: "Garage" }[p.pit_state] || "";
+  const win = st.temps ? st.temps.window : null;
+  $("#tyres").innerHTML = (p.wheels || []).map((w) => `<div class="wheel" style="border-color:${tempColor(w.t, win)}">
+    <div class="muted">${{FL:"VL",FR:"VR",RL:"HL",RR:"HR"}[w.pos]}</div>
+    <div class="t mono" style="color:${tempColor(w.t, win)}">${w.t != null ? Math.round(w.t) + "°" : "–"}</div>
+    <div class="mono muted">${w.ti != null ? `${Math.round(w.ti)}|${Math.round(w.tm)}|${Math.round(w.to)}` : ""}</div>
+    <div class="mono">${w.p != null ? (w.p * 0.1450377).toFixed(1) + " psi" : ""}</div>
+    ${w.wear != null ? `<div class="hbar" style="margin-top:4px"><i style="width:${100 - w.wear}%;background:${w.wear > 60 ? "var(--red)" : w.wear > 40 ? "var(--orange)" : "var(--green)"}"></i></div><div class="mono muted">${w.wear.toFixed(0)}% Verschl.</div>` : ""}
+    ${w.puncture ? '<div class="red">PLATTFUSS</div>' : ""}</div>`).join("");
+  const f = st.fuel;
+  if (p.fuel != null) {
+    const pct = p.fuel_cap ? p.fuel / p.fuel_cap * 100 : 50;
+    $("#fuelbar").style.width = `${pct}%`; $("#fuelbar").style.background = f && f.surplus_laps != null && f.surplus_laps < 0 ? "var(--red)" : "var(--green)";
+    $("#fueltxt").textContent = `${p.fuel.toFixed(1)} l` + (f && f.laps_in_tank != null ? ` · ${f.laps_in_tank.toFixed(1)} Rd.` : "") + (f && f.surplus_laps != null ? ` · ${f.surplus_laps >= 0 ? "+" : ""}${f.surplus_laps.toFixed(1)} Rd. bis Ziel` : "") + (f && f.per_lap_l ? ` · ${f.per_lap_l.toFixed(2)} l/Rd.` : "");
+  } else { $("#fueltxt").textContent = caps.has("fuel") ? "–" : "keine Daten"; }
+  const hasErs = p.ers != null; $("#erslbl").style.display = hasErs ? "" : "none"; $("#ersbar").parentElement.parentElement.style.display = hasErs ? "" : "none";
+  if (hasErs) { $("#ersbar").style.width = `${p.ers}%`; $("#erstxt").textContent = `${p.ers}% ${p.ers_mode || ""}${p.drs ? " · DRS OFFEN" : p.drs_avail ? " · DRS verfügbar" : ""}`; }
+  const dmg = Object.entries(p.damage || {}).filter(([k, v]) => v >= 5 && !["engine", "gearbox"].includes(k));
+  $("#damage").innerHTML = dmg.length ? dmg.map(([k, v]) => `<span class="${v > 40 ? "red" : "yellow"}">${k} ${v}%</span>`).join(" · ") : '<span class="muted">keine</span>';
+}
+
+function renderMap(s) {
+  const c = $("#map"), ctx = c.getContext("2d"); const W = c.clientWidth; c.width = W * devicePixelRatio; c.height = 260 * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio); ctx.clearRect(0, 0, W, 260);
+  const cars = s.map.cars || []; const pts = trackMap.length > 10 ? trackMap : cars.map((c) => [c.x, c.z]);
+  if (!pts.length) return;
+  let minx = Infinity, maxx = -Infinity, minz = Infinity, maxz = -Infinity;
+  for (const [x, z] of pts.concat(cars.map((c) => [c.x, c.z]))) { minx = Math.min(minx, x); maxx = Math.max(maxx, x); minz = Math.min(minz, z); maxz = Math.max(maxz, z); }
+  const sc = Math.min((W - 30) / ((maxx - minx) || 1), 230 / ((maxz - minz) || 1));
+  const ox = (W - (maxx - minx) * sc) / 2, oz = (260 - (maxz - minz) * sc) / 2;
+  const P = (x, z) => [ox + (x - minx) * sc, oz + (z - minz) * sc];
+  if (trackMap.length > 10) {
+    ctx.strokeStyle = "#2a3341"; ctx.lineWidth = 9; ctx.lineJoin = "round"; ctx.beginPath();
+    trackMap.forEach(([x, z], i) => { const [a, b] = P(x, z); i ? ctx.lineTo(a, b) : ctx.moveTo(a, b); }); ctx.closePath(); ctx.stroke();
+    ctx.strokeStyle = "#3a4555"; ctx.lineWidth = 1; ctx.stroke();
+  }
+  for (const car of cars.sort((a, b) => (a.me ? 1 : 0) - (b.me ? 1 : 0))) {
+    const [a, b] = P(car.x, car.z); ctx.beginPath(); ctx.arc(a, b, car.me ? 8 : 5, 0, Math.PI * 2);
+    ctx.fillStyle = car.me ? "#f5c518" : (car.color || "#9aa"); ctx.globalAlpha = car.pit ? 0.35 : 1; ctx.fill(); ctx.globalAlpha = 1;
+    if (car.me) { ctx.strokeStyle = "#000"; ctx.lineWidth = 2; ctx.stroke(); }
+    if (car.pos && car.pos <= 3 || car.me) { ctx.fillStyle = "#fff"; ctx.font = "10px JetBrains Mono"; ctx.fillText(car.pos ?? "", a + 7, b - 6); }
+  }
+}
+
+function renderRadio(s) {
+  const r = s.radio || []; if (r.length === lastRadioLen && r.length && r[r.length - 1]._seen) return;
+  const el = $("#radio"); const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 30;
+  el.innerHTML = r.map((m) => `<div class="msg ${m.role === "driver" ? "driver" : m.priority || ""}"><small>${m.role === "driver" ? "Du" : (S && S.engineer ? S.engineer.name : "Engineer")}${m.lap ? " · R" + m.lap : ""}${m.source === "llm" ? " · Claude" : ""}</small>${esc(m.text)}</div>`).join("");
+  if (r.length !== lastRadioLen && atBottom) el.scrollTop = el.scrollHeight; lastRadioLen = r.length;
+  $("#radiomode").textContent = { chatty: "gesprächig", normal: "normal", important: "nur Wichtiges", silent: "stumm" }[s.director ? s.director.mode : "normal"];
+}
+
+function planText(p) { if (!p) return "–"; if (!p.stops) return "Durchfahren"; return `${p.stops}-Stopp: ` + p.pit_laps.map((l, i) => `R${l} → ${p.compounds[i + 1]}`).join(", "); }
+function windowBar(el, st, se, me) {
+  if (!st || !st.plans || !se.total_laps) { el.innerHTML = ""; return; }
+  const total = se.total_laps, x = (l) => `${Math.max(0, Math.min(100, (l - 1) / (total - 1 || 1) * 100))}%`;
+  let h = ""; const a = st.plans.plan_a;
+  if (a && a.window) a.window.forEach(([lo, hi]) => h += `<div class="w" style="left:${x(lo)};width:calc(${x(hi)} - ${x(lo)} + 4px)"></div>`);
+  if (a) a.pit_laps.forEach((l) => h += `<div class="stop" style="left:${x(l)}"></div>`);
+  if (me) h += `<div class="now" style="left:${x(me)}"></div>`;
+  el.innerHTML = h;
+}
+function renderStratShort(s) {
+  const st = s.strategy || {}, se = s.session; const a = st.plans && st.plans.plan_a, b = st.plans && st.plans.plan_b;
+  const items = [["Plan A", planText(a)], ["Plan B", b ? planText(b) + ` (+${b.delta_s}s)` : "–"],
+    ["Fenster", st.window ? `R${st.window[0]}–${st.window[1]}${st.window_open ? " (offen)" : ""}` : "–"],
+    ["Boxenverlust", st.pit_loss_s ? `${st.pit_loss_s}s${st.pit_loss_effective_s && st.pit_loss_effective_s !== st.pit_loss_s ? ` (jetzt ${st.pit_loss_effective_s}s)` : ""}` : "–"],
+    ["Rejoin jetzt", st.rejoin && st.rejoin.position ? `P${st.rejoin.position}${st.rejoin.ahead ? " hinter " + esc(st.rejoin.ahead.name) : ""}` : "–"],
+    ["Vorne", st.ahead ? `${esc(st.ahead.name)} ${st.ahead.gap_s != null ? Math.abs(st.ahead.gap_s).toFixed(1) + "s" : ""} ${st.ahead.delta_per_lap_s != null ? (st.ahead.delta_per_lap_s > 0 ? "▲" : "▼") + Math.abs(st.ahead.delta_per_lap_s).toFixed(2) : ""}` : "–"],
+    ["Hinten", st.behind ? `${esc(st.behind.name)} ${st.behind.gap_s != null ? Math.abs(st.behind.gap_s).toFixed(1) + "s" : ""} ${st.behind.delta_per_lap_s != null ? (st.behind.delta_per_lap_s > 0 ? "▲" : "▼") + Math.abs(st.behind.delta_per_lap_s).toFixed(2) : ""}` : "–"]];
+  if (st.box_this_lap) items.unshift(["", '<b class="red">BOX DIESE RUNDE</b>']);
+  if (st.box_under_sc) items.unshift(["", `<b class="red">BOX UNTER SC (+${st.sc_gain_s}s)</b>`]);
+  $("#strat-short").innerHTML = items.map(([k, v]) => `<div>${k}</div><div class="mono">${v}</div>`).join("");
+  windowBar($("#window-mini"), st, se, s.player.lap);
+}
+
+function kv(el, items) { el.innerHTML = items.map(([k, v]) => `<div>${k}</div><div class="mono">${v ?? "–"}</div>`).join(""); }
+function renderStrategy(s) {
+  const st = s.strategy || {}, se = s.session; const pl = st.plans;
+  $("#plans").innerHTML = pl ? [["a", "Plan A", pl.plan_a], ["b", "Plan B", pl.plan_b]].map(([c, t, p]) => p ? `<div class="card ${c}"><h3>${t}</h3><div class="big" style="font-size:22px">${planText(p)}</div><div class="muted">Δ zu A: ${p.delta_s}s · Fenster ${p.window.map(w => "R" + w[0] + "–" + w[1]).join(", ") || "–"}</div></div>` : "").join("") +
+    `<div class="card"><h3>Alle Varianten</h3>${Object.values(pl.by_stops).map(p => `<div class="mono">${planText(p)} <span class="muted">+${p.delta_s}s</span></div>`).join("")}<div class="muted">Restrunden ${pl.laps_remaining}, Boxenverlust ${pl.pit_loss_s}s</div></div>` : '<div class="card">Strategie nur im Rennen mit Rundenzahl.</div>';
+  windowBar($("#window-big"), st, se, s.player.lap);
+  $("#window-txt").textContent = st.window ? `Fenster Runde ${st.window[0]}–${st.window[1]}, nächster Stopp Runde ${st.next_stop_lap}` : "kein Stopp geplant";
+  const r = st.rejoin; kv($("#rejoin"), r ? [["Position", r.position ? "P" + r.position : "–"], ["Boxenverlust", r.pit_loss_s + "s"], ["Vor dir", r.ahead ? `${esc(r.ahead.name)} +${r.ahead.gap_s}s` : "–"], ["Hinter dir", r.behind ? `${esc(r.behind.name)} ${r.behind.gap_s}s` : "–"], ["Verkehr", r.free_air ? "freie Fahrt" : r.traffic.map(t => esc(t.name)).join(", ")]] : [["", "keine Daten"]]);
+  const f = st.fuel; kv($("#fuel"), f ? [["Im Tank", f.fuel_l != null ? f.fuel_l.toFixed(2) + " l" : "–"], ["Verbrauch", f.per_lap_l ? f.per_lap_l.toFixed(3) + " l/Rd. (" + f.per_lap_source + ")" : "–"], ["Runden im Tank", f.laps_in_tank?.toFixed(2)], ["Restrunden", f.laps_to_go?.toFixed(2)], ["Bedarf inkl. Reserve", f.needed_l != null ? f.needed_l.toFixed(2) + " l" : "–"], ["Überschuss", f.surplus_laps != null ? f.surplus_laps.toFixed(2) + " Rd." : "–"], ["Ziel/Runde", f.target_per_lap_l?.toFixed(3)], ["Lift & Coast", f.lift_coast_m ? Math.round(f.lift_coast_m) + " m" : "–"]] : [["", "keine Daten"]]);
+  const d = st.degradation, wr = st.wear, tp = st.temps;
+  kv($("#tyrestat"), [["Mischung", s.player.tyre + " · " + (s.player.tyre_age ?? "–") + " Rd."], ["Degradation (sprit-korr.)", d && d.deg_s_per_lap != null ? d.deg_s_per_lap + " s/Rd. (" + d.laps + " Rd., R² " + d.r2 + ")" : "–"], ["Trend roh", d && d.raw_trend_s_per_lap != null ? d.raw_trend_s_per_lap + " s/Rd." : "–"], ["Limitierend", wr && wr.limiting_wheel ? wr.limiting_wheel + " in " + (wr.laps_to_limit?.toFixed(1)) + " Rd." : "–"], ["Fenster", tp && tp.window ? tp.window.join("–") + " °C" : "–"], ["Status", tp ? tp.states.join(" / ") : "–"]]);
+  const items = []; if (st.undercut_threat) items.push(["Undercut-Gefahr", `${esc(st.undercut_threat.rival)} Gewinn ${st.undercut_threat.gain_s}s ${st.undercut_threat.feasible ? "⚠" : ""}`]);
+  if (st.undercut_chance) items.push(["Undercut-Chance", `${esc(st.undercut_chance.rival)} ${st.undercut_chance.gain_s}s vs Gap ${st.undercut_chance.gap_s}s ${st.undercut_chance.feasible ? "✓" : ""}`]);
+  items.push(["Noch zu stoppen", (st.rivals_to_stop || []).length + " Autos"]); items.push(["Teamkollege in Box", st.teammate_in_pit ? "JA" : "nein"]); kv($("#rivals"), items);
+  const w = se.weather, wa = st.weather; kv($("#weatherbox"), [["Zustand", w.cond], ["Luft / Strecke", `${w.air ?? "–"}° / ${w.track ?? "–"}°`], ["Regen / Nässe", `${w.rain ?? "–"} / ${w.wet ?? "–"}`], ["Prognose", (w.forecast || []).map(f => `${f.min}′ ${f.cond}${f.rain != null ? " " + f.rain + "%" : ""}`).join(" · ") || "–"], ["Empfehlung", wa && wa.recommendation ? wa.recommendation + " (" + wa.reason + ")" : "–"]]);
+  const laps = (s.history.laps || []).slice().reverse();
+  $("#laps tbody").innerHTML = laps.map(l => `<tr><td>${l.lap}</td><td class="mono ${l.time_s === s.history.best_lap_s ? "purple" : ""}">${fmtLap(l.time_s)}</td><td class="mono">${l.fuel_used_l ? l.fuel_used_l.toFixed(2) : "–"}</td><td>${tyre(l.compound, l.tyre_age)}</td><td>${l.position ?? ""}</td><td class="muted">${[l.pit_in && "IN", l.pit_out && "OUT", l.under_sc && "SC", !l.valid && "ungültig", l.wet && "nass"].filter(Boolean).join(" ")}</td></tr>`).join("");
+  drawLapChart(s.history.laps || []);
+}
+function drawLapChart(laps) {
+  const c = $("#lapchart"), ctx = c.getContext("2d"), W = c.clientWidth, H = 200; c.width = W * devicePixelRatio; c.height = H * devicePixelRatio; ctx.scale(devicePixelRatio, devicePixelRatio);
+  const pts = laps.filter(l => l.time_s); if (pts.length < 2) return; const ts = pts.filter(l => !l.pit_in && !l.pit_out && !l.under_sc).map(l => l.time_s);
+  const lo = Math.min(...(ts.length ? ts : pts.map(l => l.time_s))) - 0.3, hi = Math.min(Math.max(...pts.map(l => l.time_s)), lo + 6);
+  const x = (i) => 30 + i / (pts.length - 1) * (W - 40), y = (t) => 10 + (1 - (Math.min(t, hi) - lo) / (hi - lo || 1)) * (H - 30);
+  ctx.strokeStyle = "#232a35"; ctx.fillStyle = "#8b96a8"; ctx.font = "10px JetBrains Mono";
+  for (let k = 0; k <= 4; k++) { const t = lo + (hi - lo) * k / 4; ctx.beginPath(); ctx.moveTo(30, y(t)); ctx.lineTo(W, y(t)); ctx.stroke(); ctx.fillText(t.toFixed(1), 0, y(t) + 3); }
+  ctx.strokeStyle = "#f5c518"; ctx.lineWidth = 2; ctx.beginPath(); pts.forEach((l, i) => i ? ctx.lineTo(x(i), y(l.time_s)) : ctx.moveTo(x(i), y(l.time_s))); ctx.stroke();
+  pts.forEach((l, i) => { ctx.fillStyle = l.pit_in || l.pit_out ? "#e10600" : l.under_sc ? "#ff8a1f" : "#f5c518"; ctx.beginPath(); ctx.arc(x(i), y(l.time_s), 3, 0, 7); ctx.fill(); });
+}
+
+async function loadCoaching() {
+  let d; try { d = await api("/api/coaching"); } catch (e) { return; }
+  const rows = (d.session_weak_corners || []).map(c => `<tr><td>${esc(c.name)}</td><td class="mono ${c.loss_s > 0.1 ? "red" : ""}">${c.loss_s.toFixed(3)}</td><td>${CAUSE[c.cause] || c.cause}</td><td></td><td></td></tr>`);
+  const last = (d.last_lap_findings || []).map(f => `<tr><td>${esc(f.name)} <span class="muted">(letzte)</span></td><td class="mono">${f.loss_s.toFixed(3)}</td><td>${CAUSE[f.cause] || "–"}</td><td class="mono">${f.brake_delta_m ?? ""}</td><td class="mono">${f.min_speed_delta_kmh ?? ""}</td></tr>`);
+  $("#corners tbody").innerHTML = rows.concat(last).join("") || `<tr><td colspan=5 class="muted">${esc(d.reason || "noch keine Analyse – ein paar Runden fahren")}</td></tr>`;
+  $("#habit").textContent = d.tyre_habit ? `Limitierender Reifen ${d.tyre_habit.wheel}: Hauptgewohnheit „${CAUSE[d.tyre_habit.habit] || d.tyre_habit.habit}“ (${d.tyre_habit.count}×)` : "";
+  drawTrace(d);
+}
+function drawTrace(d) {
+  const c = $("#trace"), ctx = c.getContext("2d"), W = c.clientWidth, H = 330; c.width = W * devicePixelRatio; c.height = H * devicePixelRatio; ctx.scale(devicePixelRatio, devicePixelRatio);
+  const ref = d.reference_trace, last = d.last_trace; if (!ref && !last) return; const n = (ref || last).speed_kmh.length;
+  const x = (i) => i / (n - 1) * W; const vmax = Math.max(...(ref || last).speed_kmh.filter(v => v != null)) || 300;
+  const bands = [[0, 200, (v) => v / vmax], [210, 60, (v) => v], [275, 55, (v) => v]];
+  (d.corners || []).forEach(cn => { const i = cn.apex_m / ((ref || last).bin_m); ctx.strokeStyle = "#232a35"; ctx.beginPath(); ctx.moveTo(x(i), 0); ctx.lineTo(x(i), H); ctx.stroke(); ctx.fillStyle = "#8b96a8"; ctx.font = "10px JetBrains Mono"; ctx.fillText("T" + cn.number, x(i) + 2, 10); });
+  const draw = (tr, col) => { if (!tr) return; [[tr.speed_kmh, 0], [tr.throttle, 1], [tr.brake, 2]].forEach(([arr, bi]) => { const [top, h, f] = bands[bi]; ctx.strokeStyle = bi === 2 && col === "#f5c518" ? "#ff5a4f" : bi === 1 && col === "#f5c518" ? "#4ade80" : col; ctx.lineWidth = 1.5; ctx.beginPath(); let started = false; arr.forEach((v, i) => { if (v == null) { started = false; return; } const yy = top + h - f(v) * h; started ? ctx.lineTo(x(i), yy) : ctx.moveTo(x(i), yy); started = true; }); ctx.stroke(); }); };
+  draw(ref, "#b26bff"); draw(last, "#f5c518");
+}
+
+async function loadDebrief(llm = false) {
+  try { const d = await api("/api/debrief" + (llm ? "?llm=1" : "")); $("#debrief").textContent = d.text || "Noch keine Daten.";
+    if (llm) $("#debriefllmtxt").textContent = d.llm_text || "Claude nicht verfügbar.";
+  } catch (e) { toast("Debrief fehlgeschlagen"); }
+  try { const m = await api("/api/memory"); $("#memory").textContent = JSON.stringify(m, null, 2); } catch (e) {}
+  try { const ss = await api("/api/sessions"); $("#sessions tbody").innerHTML = ss.sessions.map(x => `<tr><td>${x.id}</td><td>${esc(x.sim)}</td><td>${esc(x.track)}</td><td>${esc(x.session_type)}</td><td>${x.laps}</td><td>${x.start_pos ?? ""}</td><td>${x.result_pos ?? ""}</td><td class="mono">${fmtLap(x.best_lap)}</td></tr>`).join(""); } catch (e) {}
+}
+
+function renderDebug(s) {
+  const targets = { intent: 300, stt: 700, llm_first_sentence: 2500, answer_to_audio: 1000, frame_processing: 20 };
+  const names = { intent: "Instant-Intent (Taste los → Antwort)", stt: "Spracherkennung", llm_first_sentence: "Claude erster Satz", answer_to_audio: "Frage → Audio", frame_processing: "Frame-Verarbeitung" };
+  $("#lat tbody").innerHTML = Object.entries(s.latency || {}).map(([k, v]) => `<tr><td>${names[k] || k}</td><td class="mono">${v.last}</td><td class="mono ${targets[k] && v.median > targets[k] ? "red" : "green"}">${v.median}</td><td class="mono muted">${targets[k] ?? ""}</td></tr>`).join("");
+  $("#brain").textContent = JSON.stringify(s.brain, null, 2); $("#director").textContent = JSON.stringify(s.director, null, 2);
+  $("#adapter").textContent = JSON.stringify({ adapter: s.adapter, caps: s.caps }, null, 2);
+  $("#voice").textContent = JSON.stringify({ voice: s.voice, stt: s.stt, ptt: s.ptt }, null, 2);
+}
+
+// ----------------------------------------------------------------- Settings
+async function loadSettings() {
+  const c = await api("/api/config");
+  for (const [gid, keys] of Object.entries(GROUPS)) {
+    $("#" + gid).innerHTML = keys.map((k) => {
+      const v = c.values[k]; const label = LABELS[k] || k; let input;
+      if (k === "voice.output_device" || k === "voice.input_device") {
+        const devs = k === "voice.output_device" ? c.output_devices : c.input_devices;
+        input = `<select data-key="${k}"><option value="">Standard</option>${devs.map(d => `<option value="${d.index}" ${String(v) === String(d.index) ? "selected" : ""}>${esc(d.name)}</option>`).join("")}</select>`;
+      } else if (k === "voice.piper_voice" || k === "voice.piper_voice_en") {
+        input = `<select data-key="${k}">${c.piper_voices.map(n => `<option ${n === v ? "selected" : ""}>${n}</option>`).join("")}</select>`;
+      } else if (OPTIONS[k]) { input = `<select data-key="${k}">${OPTIONS[k].map(o => `<option ${o === v ? "selected" : ""}>${o}</option>`).join("")}</select>`; }
+      else if (typeof v === "boolean") { input = `<select data-key="${k}" data-bool="1"><option value="true" ${v ? "selected" : ""}>an</option><option value="false" ${!v ? "selected" : ""}>aus</option></select>`; }
+      else { input = `<input data-key="${k}" value="${esc(v ?? "")}">`; }
+      return `<div class="field"><label>${label}</label>${input}</div>`;
+    }).join("");
+  }
+  document.querySelectorAll('[data-key="gt7.ps5_ip"]').forEach(el => el.value = c.values["gt7.ps5_ip"] || "");
+  $("#sk-anthropic").textContent = c.secrets.ANTHROPIC_API_KEY ? "✓ gesetzt" : "nicht gesetzt";
+  $("#sk-eleven").textContent = c.secrets.ELEVENLABS_API_KEY ? "✓ gesetzt" : "nicht gesetzt";
+  $("#sk-voice").textContent = c.secrets.ELEVENLABS_VOICE_ID ? "✓ gesetzt" : "";
+  $("#pttinfo").textContent = c.ptt ? `Backend: ${c.ptt.backend} · Zuweisung: ${c.ptt.binding ? `${c.ptt.binding.device} / Taste ${c.ptt.binding.code}` : "keine"}${c.ptt.error ? " · " + c.ptt.error : ""}` : "PTT deaktiviert";
+  try { const r = await api("/api/recordings"); $("#replayfile").innerHTML = r.recordings.map(x => `<option value="${esc(x.path)}">${esc(x.name)} (${x.mb} MB)</option>`).join("") || "<option value=''>keine Aufnahmen</option>"; } catch (e) {}
+  simFields();
+}
+function simFields() { const v = $("#simsel").value; $("#scnfield").style.display = v === "simulator" ? "" : "none"; $("#replayfield").style.display = v === "replay" ? "" : "none"; }
+
+// ------------------------------------------------------------------- PTT
+let recorder = null, chunks = [], pttDown = false;
+function micMode() { try { return localStorage.getItem("micmode") || "server"; } catch (e) { return "server"; } }
+async function pttStart() {
+  if (pttDown) return; pttDown = true; $("#ptt").classList.add("on"); $("#ptt").textContent = "🔴 SPRICH JETZT …";
+  if (micMode() === "browser") {
+    try { const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); chunks = []; recorder = new MediaRecorder(stream);
+      recorder.ondataavailable = (e) => chunks.push(e.data);
+      recorder.onstop = async () => { stream.getTracks().forEach(t => t.stop()); const blob = new Blob(chunks, { type: recorder.mimeType });
+        try { const r = await fetch("/api/ask_audio", { method: "POST", body: blob }); const j = await r.json(); if (j.text) toast("Erkannt: " + j.text); } catch (e) { toast("Audio-Upload fehlgeschlagen"); } };
+      recorder.start(); ws && ws.send(JSON.stringify({ type: "ptt", pressed: true, source: "browser" }));
+    } catch (e) { toast("Kein Mikrofonzugriff im Browser"); }
+  } else { ws && ws.send(JSON.stringify({ type: "ptt", pressed: true, source: "button" })); }
+}
+function pttStop() {
+  if (!pttDown) return; pttDown = false; $("#ptt").classList.remove("on"); $("#ptt").textContent = "🎙️ GEDRÜCKT HALTEN ZUM SPRECHEN";
+  if (micMode() === "browser") { if (recorder && recorder.state !== "inactive") recorder.stop(); ws && ws.send(JSON.stringify({ type: "ptt", pressed: false, source: "browser" })); }
+  else ws && ws.send(JSON.stringify({ type: "ptt", pressed: false, source: "button" }));
+}
+
+// ---------------------------------------------------------------- Events
+document.querySelectorAll("nav button").forEach((b) => b.onclick = () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("active", x === b));
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.id === "tab-" + b.dataset.tab));
+  if (b.dataset.tab === "settings") loadSettings(); if (b.dataset.tab === "coaching") loadCoaching(); if (b.dataset.tab === "debrief") loadDebrief();
+  try { localStorage.setItem("tab", b.dataset.tab); } catch (e) {} render();
+});
+const ptt = $("#ptt");
+ptt.addEventListener("pointerdown", (e) => { e.preventDefault(); pttStart(); });
+ptt.addEventListener("pointerup", pttStop); ptt.addEventListener("pointerleave", pttStop); ptt.addEventListener("pointercancel", pttStop);
+document.addEventListener("keydown", (e) => { if (e.code === "Space" && !["INPUT", "SELECT", "TEXTAREA"].includes(document.activeElement.tagName)) { e.preventDefault(); if (!e.repeat) pttStart(); } });
+document.addEventListener("keyup", (e) => { if (e.code === "Space" && !["INPUT", "SELECT", "TEXTAREA"].includes(document.activeElement.tagName)) pttStop(); });
+const sendAsk = () => { const t = $("#ask").value.trim(); if (!t) return; ws && ws.send(JSON.stringify({ type: "ask", text: t })); $("#ask").value = ""; };
+$("#askbtn").onclick = sendAsk; $("#ask").addEventListener("keydown", (e) => { if (e.key === "Enter") sendAsk(); });
+$("#mode").onchange = () => ws && ws.send(JSON.stringify({ type: "mode", mode: $("#mode").value }));
+$("#recbtn").onclick = async () => { try { const r = await api(S && S.recording ? "/api/record/stop" : "/api/record/start", { method: "POST" }); toast(r.saved ? "Gespeichert: " + r.saved.path : "Aufnahme läuft"); } catch (e) { toast("Aufnahme fehlgeschlagen"); } };
+$("#simsel").onchange = simFields;
+$("#simapply").onclick = async () => { const key = $("#simsel").value; const body = { key };
+  if (key === "simulator") body.scenario = $("#scenario").value; if (key === "replay") { body.path = $("#replayfile").value; body.speed = parseFloat($("#replayspeed").value); }
+  try { await api("/api/sim/select", { method: "POST", body }); toast("Quelle gewechselt"); } catch (e) { toast("Fehler: " + e.message); } };
+$("#gt7find").onclick = async () => { toast("Suche PS5 …"); try { const r = await api("/api/gt7/discover", { method: "POST" }); toast(r.ip ? "PS5 gefunden: " + r.ip : "Keine PS5 gefunden"); document.querySelectorAll('[data-key="gt7.ps5_ip"]').forEach(el => el.value = r.ip || el.value); } catch (e) { toast("Suche fehlgeschlagen"); } };
+$("#savecfg").onclick = async () => { const body = {}; document.querySelectorAll("[data-key]").forEach(el => body[el.dataset.key] = el.dataset.bool ? el.value === "true" : el.value);
+  try { const r = await api("/api/config", { method: "POST", body }); $("#cfgmsg").textContent = `Gespeichert (${r.changed.length})` + (r.restart_recommended.length ? " – Neustart empfohlen für: " + r.restart_recommended.join(", ") : ""); } catch (e) { $("#cfgmsg").textContent = "Fehler: " + e.message; } };
+$("#savekeys").onclick = async () => { const body = { ANTHROPIC_API_KEY: $("#key-anthropic").value, ELEVENLABS_API_KEY: $("#key-eleven").value, ELEVENLABS_VOICE_ID: $("#key-voice").value };
+  try { const r = await api("/api/secrets", { method: "POST", body }); $("#key-anthropic").value = $("#key-eleven").value = ""; toast("Keys gespeichert in " + r.path); loadSettings(); } catch (e) { toast("Fehler: " + e.message); } };
+$("#pttlearn").onclick = async () => { toast("Jetzt die gewünschte Lenkradtaste drücken …"); try { const r = await api("/api/ptt/learn", { method: "POST" }); toast(r.ok ? `Zugewiesen: ${r.binding.device} Taste ${r.binding.code}` : "Keine Taste erkannt"); loadSettings(); } catch (e) { toast("Fehler: " + e.message); } };
+$("#radiotest").onclick = () => api("/api/radio/test", { method: "POST" });
+$("#micmode").onchange = () => { try { localStorage.setItem("micmode", $("#micmode").value); } catch (e) {} };
+$("#coachrefresh").onclick = loadCoaching; $("#debriefbtn").onclick = () => loadDebrief(false); $("#debriefllm").onclick = () => loadDebrief(true);
+try { $("#micmode").value = micMode(); const t = localStorage.getItem("tab"); if (t) document.querySelector(`nav button[data-tab="${t}"]`)?.click(); } catch (e) {}
+setInterval(() => { if ($("#tab-coaching").classList.contains("active")) loadCoaching(); }, 8000);
+connect();
+</script>
+</body>
+</html>

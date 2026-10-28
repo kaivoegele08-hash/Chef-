@@ -333,6 +333,6 @@ def run_tool(eng: Engineer, name: str, args: dict[str, Any] | None) -> str:
     fn = entry[0]
     try:
         result = fn(eng, args or {})
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         result = {"error": f"{type(exc).__name__}: {exc}"}
     return json.dumps(result, ensure_ascii=False, separators=(",", ":"), default=str)

@@ -63,6 +63,7 @@ packages = ["pitwall"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 filterwarnings = ["ignore::DeprecationWarning:websockets.*"]
 
 [tool.ruff]
@@ -71,7 +72,11 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "SIM", "ASYNC", "RUF"]
-ignore = ["E501", "RUF001", "RUF002", "RUF003", "SIM108", "B008"]
+ignore = ["E501", "RUF001", "RUF002", "RUF003", "SIM108", "B008", "RUF046", "SIM105", "SIM115", "ASYNC109",
+          "ASYNC240", "B027"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E741", "SIM118", "RUF059"]
 
 [tool.mypy]
 python_version = "3.11"

@@ -299,7 +299,12 @@ class RaceState:
         md, od = self.total_distance(me), self.total_distance(other)
         if md is None or od is None:
             return None
-        return self.gaps.gap(me.idx, other.idx, md, od, self.game_time(f))
+        g = self.gaps.gap(me.idx, other.idx, md, od, self.game_time(f))
+        if g is None and abs(od - md) < 300:
+            # sehr knapp (zwischen zwei Checkpoints): Distanz / Geschwindigkeit des hinteren Autos
+            rear_speed = (f.player.speed_ms if od > md else (other.speed_ms or f.player.speed_ms)) or 0.0
+            g = (od - md) / max(rear_speed, 10.0)
+        return g
 
     def car_ahead(self) -> CarState | None:
         return self._neighbour(-1)

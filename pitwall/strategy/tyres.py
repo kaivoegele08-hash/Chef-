@@ -51,14 +51,14 @@ def fit_degradation(laps: list[LapRecord], time_per_litre: float = 0.03, min_lap
     keep = np.abs(times - med) < max(1.5, 4 * np.median(np.abs(times - med)) + 0.3)
     ages, times, fuel = ages[keep], times[keep], fuel[keep]
     if len(ages) < min_laps or np.ptp(ages) == 0:
-        return DegradationFit(compound, int(len(ages)), None, None, None, None)
+        return DegradationFit(compound, len(ages), None, None, None, None)
     corrected = times - fuel * time_per_litre
     slope, intercept = np.polyfit(ages, corrected, 1)
     raw_slope = float(np.polyfit(ages, times, 1)[0])
     pred = slope * ages + intercept
     ss_res = float(np.sum((corrected - pred) ** 2))
     ss_tot = float(np.sum((corrected - corrected.mean()) ** 2)) or 1e-9
-    return DegradationFit(compound, int(len(ages)), float(slope), float(intercept), 1 - ss_res / ss_tot, raw_slope)
+    return DegradationFit(compound, len(ages), float(slope), float(intercept), 1 - ss_res / ss_tot, raw_slope)
 
 
 @dataclass(slots=True)

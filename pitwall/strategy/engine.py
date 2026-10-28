@@ -18,7 +18,14 @@ from .fuel import FuelStatus, fuel_status
 from .gaps import GapInfo, build_gap_info
 from .pit import CutAssessment, PitLossModel, RejoinPrediction, assess_undercut, predict_rejoin
 from .plans import CompoundModel, PlanResult, _evaluate, plan_race
-from .tyres import DegradationFit, TempStatus, WearProjection, fit_degradation, project_wear, temperature_status
+from .tyres import (
+    DegradationFit,
+    TempStatus,
+    WearProjection,
+    fit_degradation,
+    project_wear,
+    temperature_status,
+)
 
 log = logging.getLogger(__name__)
 
