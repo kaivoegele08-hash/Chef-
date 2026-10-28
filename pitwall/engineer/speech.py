@@ -188,6 +188,12 @@ class Speaker:
             return Spoken(d.display + " l", d.spoken + " Liter")
         return Spoken(d.display + " l", d.spoken + (" litre" if d.display == "1" else " litres"))
 
+    def fuel(self, value: float, unit: str = "l", places: int = 1) -> Spoken:
+        if unit == "kg":
+            d = self.decimal(value, places)
+            return Spoken(d.display + " kg", d.spoken + (" Kilo" if self.lang == "de" else " kilos"))
+        return self.litres(value, places)
+
     def temp(self, c: float) -> Spoken:
         n = int(round(c))
         return Spoken(f"{n} °C", (int_words_de(n) + " Grad") if self.lang == "de" else (int_words_en(n) + " degrees"))

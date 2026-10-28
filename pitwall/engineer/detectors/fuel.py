@@ -54,9 +54,9 @@ class FuelDetector(Detector):
                 target = fuel.target_per_lap_l or 0.0
                 if not self.saving:
                     out.append(ctx.event("fuel.critical", Priority.HIGH, "fuel", ttl=30,
-                                         deficit=sp.laps(deficit, 1), target=sp.litres(target, 2)))
+                                         deficit=sp.laps(deficit, 1), target=sp.fuel(target, ctx.frame.player.fuel_unit, 2)))
                 else:
-                    out.append(ctx.event("fuel.save", Priority.INFO, "fuel", ttl=30, target=sp.litres(target, 2),
+                    out.append(ctx.event("fuel.save", Priority.INFO, "fuel", ttl=30, target=sp.fuel(target, ctx.frame.player.fuel_unit, 2),
                                          lift=sp.metres(fuel.lift_coast_m or 30)))
                 self.saving = True
             return out

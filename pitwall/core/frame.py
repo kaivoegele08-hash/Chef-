@@ -425,6 +425,7 @@ class PlayerState:
     steering: float = 0.0  # -1 (links) .. 1 (rechts)
     fuel_l: float | None = None
     fuel_capacity_l: float | None = None
+    fuel_unit: str = "l"  # "l" oder "kg" (F1-Spiele rechnen in kg)
     fuel_remaining_laps_game: float | None = None  # Schätzung des Spiels (F1)
     wheels: list[WheelState] = field(default_factory=lambda: [WheelState() for _ in range(4)])
     tyre_compound: str | None = None

@@ -172,7 +172,7 @@ def answer(intent: Intent, eng: Engineer) -> tuple[str, dict[str, Any]] | tuple[
         if not f.has(Capability.FUEL) or fs is None or fs.fuel_l is None:
             return "answer.no_data", {}
         if fs.laps_in_tank is None:
-            return "answer.fuel_simple", {"litres": sp.litres(fs.fuel_l)}
+            return "answer.fuel_simple", {"litres": sp.fuel(fs.fuel_l, f.player.fuel_unit)}
         if fs.surplus_laps is None:
             surplus = Spoken("Bedarf noch unbekannt" if de else "target unknown",
                              "Bedarf noch unbekannt" if de else "target unknown")
@@ -182,7 +182,7 @@ def answer(intent: Intent, eng: Engineer) -> tuple[str, dict[str, Any]] | tuple[
                              f"{v.spoken} {'Runden Reserve' if de else 'laps margin'}")
         else:
             v = sp.laps(-fs.surplus_laps, 1)
-            t = sp.litres(fs.target_per_lap_l or 0, 2)
+            t = sp.fuel(fs.target_per_lap_l or 0, f.player.fuel_unit, 2)
             surplus = Spoken(f"{v.display} {'Runden zu wenig, Ziel' if de else 'laps short, target'} {t.display}",
                              f"{v.spoken} {'Runden zu wenig, Ziel' if de else 'laps short, target'} {t.spoken}")
         return "answer.fuel", {"laps": _laps_float(sp, fs.laps_in_tank), "surplus_text": surplus}
