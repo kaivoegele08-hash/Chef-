@@ -136,7 +136,8 @@ class CornerFinding:
                 "lockup": self.lockup, "wheelspin": self.wheelspin, "offtrack": self.offtrack}
 
 
-def analyse_corner(cur: LapTrace, ref: LapTrace, corner: Corner, length: float) -> CornerFinding | None:
+def analyse_corner(cur: LapTrace, ref: LapTrace, corner: Corner, length: float,
+                   lang: str = "de") -> CornerFinding | None:
     """Vergleicht ein Kurvensegment zweier Runden."""
     n = cur.n
     approach = 150.0
@@ -199,7 +200,7 @@ def analyse_corner(cur: LapTrace, ref: LapTrace, corner: Corner, length: float) 
             cause = "coasting"
         elif spin:
             cause = "wheelspin"
-    return CornerFinding(corner.number, corner.label, loss, cause, brake_delta, min_delta, thr_delta,
+    return CornerFinding(corner.number, corner.label_for(lang), loss, cause, brake_delta, min_delta, thr_delta,
                          coasting if coasting > 0 else None, lock, spin, off)
 
 
@@ -266,7 +267,7 @@ class Coach:
         findings: list[CornerFinding] = []
         if self.best is not None and self.track is not None and self.track.corners:
             for c in self.track.corners:
-                f = analyse_corner(trace, self.best, c, trace.length_m)
+                f = analyse_corner(trace, self.best, c, trace.length_m, self.config.language)
                 if f is not None:
                     findings.append(f)
                     self.history[c.number].append(f)

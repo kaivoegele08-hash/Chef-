@@ -277,7 +277,7 @@ def answer(intent: Intent, eng: Engineer) -> tuple[str, dict[str, Any]] | tuple[
     if name == "weather":
         if not f.has(Capability.WEATHER):
             return "answer.no_data", {}
-        w = f.session.weather
+        wx = f.session.weather
         forecast = Spoken("", "")
         adv = snap.weather
         if adv and adv.rain_in_min is not None:
@@ -288,9 +288,9 @@ def answer(intent: Intent, eng: Engineer) -> tuple[str, dict[str, Any]] | tuple[
             forecast = Spoken("Kein Regen erwartet." if de else "No rain expected.",
                               "Kein Regen erwartet." if de else "No rain expected.")
         unknown = Spoken("?", "unbekannt" if de else "unknown")
-        return "answer.weather", {"condition": condition_name(w.condition, sp),
-                                  "track_temp": sp.temp(w.track_temp_c) if w.track_temp_c is not None else unknown,
-                                  "air_temp": sp.temp(w.air_temp_c) if w.air_temp_c is not None else unknown,
+        return "answer.weather", {"condition": condition_name(wx.condition, sp),
+                                  "track_temp": sp.temp(wx.track_temp_c) if wx.track_temp_c is not None else unknown,
+                                  "air_temp": sp.temp(wx.air_temp_c) if wx.air_temp_c is not None else unknown,
                                   "forecast": forecast}
 
     if name == "damage":
@@ -298,7 +298,7 @@ def answer(intent: Intent, eng: Engineer) -> tuple[str, dict[str, Any]] | tuple[
             return "answer.no_data", {}
         dmg = f.player.damage
         parts = []
-        for fld in dmg.__slots__:  # type: ignore[attr-defined]
+        for fld in dmg.__slots__:
             val = getattr(dmg, fld)
             if val is not None and val >= 5 and fld not in ("engine", "gearbox"):
                 parts.append((fld, val))
@@ -328,11 +328,12 @@ def answer(intent: Intent, eng: Engineer) -> tuple[str, dict[str, Any]] | tuple[
             gap_sp = Spoken(f"{gs.display} {word}", f"{gs.spoken} {word}")
         tyre = Spoken("", "")
         if car.tyre_compound and f.has(Capability.OPPONENT_TYRES):
-            c = sp.compound(car.tyre_compound)
-            age = sp.n_laps(car.tyre_age_laps or 0)
+            comp = sp.compound(car.tyre_compound)
+            age_sp = sp.n_laps(car.tyre_age_laps or 0)
             word = "auf" if de else "on"
             alt = "alt" if de else "old"
-            tyre = Spoken(f"{word} {c.display}, {age.display} {alt}.", f"{word} {c.spoken}, {age.spoken} {alt}.")
+            tyre = Spoken(f"{word} {comp.display}, {age_sp.display} {alt}.",
+                          f"{word} {comp.spoken}, {age_sp.spoken} {alt}.")
             if car.pit_stops == 0 and de:
                 tyre = Spoken(tyre.display + " Noch kein Stopp.", tyre.spoken + " Noch kein Stopp.")
             elif car.pit_stops == 0:
@@ -353,7 +354,7 @@ def answer(intent: Intent, eng: Engineer) -> tuple[str, dict[str, Any]] | tuple[
 
 def _laps_float(sp: Any, value: float) -> Spoken:
     if value >= 10:
-        return sp.n_laps(int(value))  # type: ignore[no-any-return]
+        return sp.n_laps(int(value))
     d = sp.decimal(value, 1)
     unit = "Runden" if sp.lang == "de" else "laps"
     return Spoken(f"{d.display} {unit}", f"{d.spoken} {unit}")

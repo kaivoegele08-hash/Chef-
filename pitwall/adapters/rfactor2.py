@@ -164,7 +164,7 @@ SCORING_ONLY_CAPS = frozenset(BASE_CAPS - {
 
 
 def _u32x2(data: bytes) -> tuple[int, int]:
-    return struct.unpack_from("<II", data, 0)  # type: ignore[return-value]
+    return struct.unpack_from("<II", data, 0)
 
 
 # ------------------------------------------------------------------ Splitter
@@ -288,7 +288,7 @@ class RF2Source(RawSource):
     async def stop(self) -> None:
         await self.inner.stop()
 
-    async def packets(self) -> AsyncIterator[RawPacket]:  # type: ignore[override]
+    async def packets(self) -> AsyncIterator[RawPacket]:
         async for pkt in self.inner.packets():
             for out in self.splitter.split(pkt):
                 yield out

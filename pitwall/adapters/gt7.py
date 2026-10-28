@@ -116,7 +116,7 @@ try:
     from Crypto.Cipher import Salsa20 as _Salsa20
 
     def salsa20_xor(data: bytes, key: bytes, nonce: bytes) -> bytes:
-        return _Salsa20.new(key=key, nonce=nonce).decrypt(data)  # type: ignore[no-any-return]
+        return _Salsa20.new(key=key, nonce=nonce).decrypt(data)
 
     SALSA_BACKEND = "pycryptodome"
 except ImportError:  # pragma: no cover - abhängig von der Installation

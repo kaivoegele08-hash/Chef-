@@ -15,7 +15,7 @@ import subprocess
 import urllib.request
 import wave
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -81,7 +81,7 @@ class PiperTTS(TTSProvider):
         self.voices_dir = voices_dir
         self.length_scale = length_scale
         self.use_cuda = use_cuda
-        self._voice = None
+        self._voice: Any = None
         self._error: str | None = None
 
     def model_path(self) -> Path:

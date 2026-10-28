@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from ...core.frame import Capability, SafetyCar
 from ...core.state import StateEventKind
 from ...strategy.gaps import GapInfo
@@ -40,7 +42,7 @@ class GapDetector(Detector):
         cd = ctx.avg_lap() * 0.8
         said = False
 
-        def ev(key: str, prio: Priority, **data: object) -> RadioEvent:
+        def ev(key: str, prio: Priority, **data: Any) -> RadioEvent:
             return ctx.event(key, prio, "gaps", ttl=ttl, cooldown_key="gaps.lap", cooldown_s=cd, **data)
 
         # Gefahr von hinten hat Vorrang

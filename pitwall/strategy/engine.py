@@ -240,7 +240,7 @@ class StrategyEngine:
         if frame.has(Capability.TYRE_TEMPS):
             window = tyre_cfg.get("window", {}).get(p.tyre_compound or "", None)
             snap.temps = temperature_status([w.surface_temp() for w in p.wheels[:4]],
-                                            tuple(window) if window else None,  # type: ignore[arg-type]
+                                            tuple(window) if window else None,
                                             [w.pressure_kpa for w in p.wheels[:4]])
         snap.pit_loss_s = self.pit.loss_s
         snap.pit_loss_effective_s = self.pit.effective(s.safety_car)
@@ -303,8 +303,7 @@ class StrategyEngine:
         if rule and frame.has(Capability.OPPONENT_TYRES):
             snap.rivals_to_stop = [
                 i.idx for i in infos
-                if i.pit_stops == 0 and len(set(state.opponents.get(i.idx).compounds if state.opponents.get(i.idx)
-                                                else [])) < 2
+                if i.pit_stops == 0 and len(set(_opp_compounds(state, i.idx))) < 2
             ]
         # Undercut-Bewertung
         snap.undercut_threat = snap.undercut_chance = None
@@ -401,3 +400,8 @@ def _norm(name: str) -> str:
 
 def _sim_prefix(sim_key: str) -> str:
     return {"f1_24": "f1", "f1_25": "f1"}.get(sim_key, sim_key)
+
+
+def _opp_compounds(state: RaceState, idx: int) -> list[str]:
+    hist = state.opponents.get(idx)
+    return list(hist.compounds) if hist is not None else []

@@ -150,7 +150,7 @@ class TransportAdapter(SimAdapter):
         base["decoder"] = {"packets": self.decoder.packets, "errors": self.decoder.errors}
         return base
 
-    async def frames(self) -> AsyncIterator[TelemetryFrame]:  # type: ignore[override]
+    async def frames(self) -> AsyncIterator[TelemetryFrame]:
         async for pkt in self.source.packets():
             self.last_packet_t = time.monotonic()
             if self.recorder is not None:
@@ -193,7 +193,7 @@ class UdpSource(RawSource):
         transport, _ = await loop.create_datagram_endpoint(
             _Proto, local_addr=(self.host, self.port), reuse_port=_reuse_port_supported(),
         )
-        self.transport = transport  # type: ignore[assignment]
+        self.transport = transport
 
     async def stop(self) -> None:
         if self.transport is not None:
@@ -206,7 +206,7 @@ class UdpSource(RawSource):
         if self.transport is not None:
             self.transport.sendto(data, addr)
 
-    async def packets(self) -> AsyncIterator[RawPacket]:  # type: ignore[override]
+    async def packets(self) -> AsyncIterator[RawPacket]:
         while True:
             pkt = await self.queue.get()
             if pkt is None:
@@ -250,7 +250,7 @@ class PollingSource(RawSource):
             self.closer()
             self.opened = False
 
-    async def packets(self) -> AsyncIterator[RawPacket]:  # type: ignore[override]
+    async def packets(self) -> AsyncIterator[RawPacket]:
         period = 1.0 / max(1.0, self.hz)
         while self._running:
             start = time.monotonic()

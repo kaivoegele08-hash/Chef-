@@ -160,7 +160,7 @@ class IRacingSource(RawSource):
     async def stop(self) -> None:
         await self.inner.stop()
 
-    async def packets(self) -> AsyncIterator[RawPacket]:  # type: ignore[override]
+    async def packets(self) -> AsyncIterator[RawPacket]:
         async for pkt in self.inner.packets():
             for out in self.splitter.split(pkt.data, pkt.t):
                 yield out
@@ -378,7 +378,7 @@ class IRacingDecoder(Decoder):
     def _session_entry(self, num: int | None) -> dict[str, Any]:
         for s in (self.info.get("SessionInfo") or {}).get("Sessions") or []:
             if _int(s.get("SessionNum")) == num:
-                return s  # type: ignore[no-any-return]
+                return s
         return {}
 
     def _frame(self, t: float) -> TelemetryFrame:
@@ -733,7 +733,7 @@ def send_pit_command(mode: int, param: int = 0) -> bool:
         return False
     import ctypes
 
-    user32 = ctypes.windll.user32  # type: ignore[attr-defined]
+    user32 = ctypes.windll.user32
     msg_id = user32.RegisterWindowMessageW("IRSDK_BROADCASTMSG")
     if not msg_id:
         return False

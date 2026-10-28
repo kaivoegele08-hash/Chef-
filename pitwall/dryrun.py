@@ -80,7 +80,7 @@ def simulate(config: Config, scenario: str = "default", laps: int | None = None,
         scenario=scenario,
         hz=float(sc.get("hz", 20)),
     )
-    sim._player_follows_engineer = follow_engineer  # type: ignore[attr-defined]
+    sim._player_follows_engineer = follow_engineer
 
     class _Cmd:
         def command(self, name: str, arg: str | None = None) -> None:

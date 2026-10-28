@@ -104,7 +104,7 @@ class RelayHub:
                 hub.handle(data)
 
         transport, _ = await loop.create_datagram_endpoint(_P, local_addr=(self.host, self.port))
-        self.transport = transport  # type: ignore[assignment]
+        self.transport = transport
         sock = transport.get_extra_info("socket")
         if sock is not None:
             import socket
@@ -135,12 +135,12 @@ class RelayHub:
         if len(data) < _HDR.size or data[:4] != b"PWR1":
             return
         _, map_id, flags, seq, size, pages, _ = _HDR.unpack_from(data)
-        name = self.id_to_name.get(map_id)
-        if name is None:
+        mname = self.id_to_name.get(map_id)
+        if mname is None:
             return  # erst nach dem nächsten Hello zuordenbar
-        m = self.mirrors.get(name)
+        m = self.mirrors.get(mname)
         if m is None or m.size != size:
-            m = self.mirrors[name] = _Mirror(name, size, bytearray(size))
+            m = self.mirrors[mname] = _Mirror(mname, size, bytearray(size))
         off = _HDR.size
         for _ in range(pages):
             (idx,) = struct.unpack_from("<I", data, off)
@@ -159,7 +159,7 @@ class RelayHub:
                 m.snapshots += 1
                 m.updated_t = time.monotonic()
                 for cb in self.listeners:
-                    cb(name)
+                    cb(mname)
 
     def snapshot(self, name: str, max_age_s: float = 3.0) -> bytes | None:
         m = self.mirrors.get(name)
@@ -349,7 +349,7 @@ class ShmSource(RawSource):
             out.append(RawPacket(spec.channel, data, now))
         return out
 
-    async def packets(self) -> AsyncIterator[RawPacket]:  # type: ignore[override]
+    async def packets(self) -> AsyncIterator[RawPacket]:
         period = 1.0 / max(1.0, self.hz)
         while self._running:
             t0 = time.monotonic()

@@ -80,7 +80,7 @@ class F1Decoder(Decoder):
         self.player_idx = 0
         self.session: dict[str, Any] = {}
         self.marshal: list[tuple[float, int]] = []
-        self.forecast: list[tuple[int, int, int, int, int, int]] = []
+        self.forecast: list[tuple[int, ...]] = []
         self.laps: dict[int, tuple[Any, ...]] = {}
         self.parts: dict[int, tuple[Any, ...]] = {}
         self.num_active = 0
@@ -571,7 +571,7 @@ class F1Adapter(TransportAdapter):
             except OSError:
                 pass
 
-    async def frames(self) -> AsyncIterator[TelemetryFrame]:  # type: ignore[override]
+    async def frames(self) -> AsyncIterator[TelemetryFrame]:
         async for frame in super().frames():
             self.sim_id = frame.sim
             self.display_name = "EA SPORTS F1 24" if frame.sim is SimId.F1_24 else "EA SPORTS F1 25"

@@ -387,7 +387,7 @@ class ACCBroadcastSource(RawSource):
                 src._on_datagram(data)
 
         transport, _ = await loop.create_datagram_endpoint(_P, local_addr=("0.0.0.0", 0))
-        self.transport = transport  # type: ignore[assignment]
+        self.transport = transport
         self._task = asyncio.create_task(self._keepalive())
 
     def _send(self, data: bytes) -> None:
@@ -441,7 +441,7 @@ class ACCBroadcastSource(RawSource):
         with contextlib.suppress(asyncio.QueueFull):
             self.queue.put_nowait(None)
 
-    async def packets(self) -> AsyncIterator[RawPacket]:  # type: ignore[override]
+    async def packets(self) -> AsyncIterator[RawPacket]:
         while True:
             pkt = await self.queue.get()
             if pkt is None:

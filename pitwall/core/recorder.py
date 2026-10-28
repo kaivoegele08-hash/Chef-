@@ -62,7 +62,7 @@ def _open_read(path: Path) -> IO[bytes]:
     if kind == "zstd":
         import zstandard
 
-        return zstandard.ZstdDecompressor().stream_reader(raw)  # type: ignore[no-any-return]
+        return zstandard.ZstdDecompressor().stream_reader(raw)
     if kind == "gzip":
         return gzip.GzipFile(fileobj=raw, mode="rb")  # type: ignore[return-value]
     return raw
@@ -122,7 +122,7 @@ class Recorder:
 
 def read_recording(path: Path) -> tuple[dict[str, Any], Iterator[RawPacket]]:
     fh = _open_read(path)
-    reader = io.BufferedReader(fh) if not isinstance(fh, io.BufferedReader) else fh  # type: ignore[arg-type]
+    reader = fh if isinstance(fh, io.BufferedReader) else io.BufferedReader(fh)  # type: ignore[type-var]
     header = json.loads(reader.readline().decode())
 
     def records() -> Iterator[RawPacket]:

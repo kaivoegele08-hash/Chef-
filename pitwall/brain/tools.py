@@ -242,14 +242,14 @@ def get_damage(eng: Engineer, _: dict[str, Any]) -> dict[str, Any]:
     if f is None or not f.has(Capability.DAMAGE):
         return _no("Keine Schadensdaten")
     d = f.player.damage
-    return {k: _r(getattr(d, k), 0) for k in d.__slots__ if getattr(d, k) is not None}  # type: ignore[attr-defined]
+    return {k: _r(getattr(d, k), 0) for k in d.__slots__ if getattr(d, k) is not None}
 
 
 def get_corner_analysis(eng: Engineer, args: dict[str, Any]) -> dict[str, Any]:
     coach = getattr(eng, "coach", None)
     if coach is None:
         return _no("Coaching noch nicht verfügbar (zu wenige Runden)")
-    return coach.analysis(limit=int(args.get("limit", 5)))  # type: ignore[no-any-return]
+    return coach.analysis(limit=int(args.get("limit", 5)))
 
 
 def remember_driver_note(eng: Engineer, args: dict[str, Any]) -> dict[str, Any]:
@@ -269,7 +269,7 @@ def get_driver_history(eng: Engineer, _: dict[str, Any]) -> dict[str, Any]:
     f = eng.frame
     if eng.long_memory is None or f is None:
         return _no("Kein Langzeitgedächtnis")
-    return eng.long_memory.summary(str(f.sim), f.session.track_id or f.session.track_name,  # type: ignore[no-any-return]
+    return eng.long_memory.summary(str(f.sim), f.session.track_id or f.session.track_name,
                                    f.session.car_name)
 
 

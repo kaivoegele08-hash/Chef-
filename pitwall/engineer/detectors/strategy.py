@@ -82,7 +82,7 @@ class StrategyDetector(Detector):
             if snap.ahead and snap.ahead.gap_s is not None:
                 out.append(ctx.event("strategy.pit_exit_position", Priority.INFO, "strategy", ttl=10,
                                      pos=sp.position(me.position), name=sp.name(snap.ahead.name),
-                                     gap=sp.seconds(abs(snap.ahead.gap_s))))
+                                     gap=sp.seconds(max(0.1, abs(snap.ahead.gap_s)))))
             if snap.rivals_to_stop and not self.rivals_to_stop_reported:
                 ahead_to_stop = [i for i in snap.rivals_to_stop
                                  if (c := ctx.frame.car(i)) and c.position and me.position and c.position < me.position]

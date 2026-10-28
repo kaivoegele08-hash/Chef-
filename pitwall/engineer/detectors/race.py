@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from ...core.frame import CarStatus, SessionPhase
 from ...core.state import StateEventKind
 from ..events import Priority, RadioEvent
@@ -86,7 +88,7 @@ class RaceDetector(Detector):
                         pass  # Positionswechsel durch Boxenstopps → nicht als Überholmanöver melden
                     else:
                         key = "race.overtook" if to < frm else "race.overtaken"
-                        data = {"pos": sp.position(to)}
+                        data: dict[str, Any] = {"pos": sp.position(to)}
                         if other is not None and other.driver_name:
                             data["name"] = sp.name(other.driver_name)
                         out.append(ctx.event(key, Priority.INFO, "race", ttl=8, cooldown_key="race.pos",

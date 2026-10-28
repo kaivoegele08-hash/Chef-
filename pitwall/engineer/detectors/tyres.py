@@ -104,19 +104,19 @@ class TyreDetector(Detector):
         # --- Plattfuß / Druckverlust ---
         pressures = [w.pressure_kpa for w in p.wheels[:4]]
         known = [x for x in pressures if x]
-        for i, w in enumerate(p.wheels[:4]):
-            if w.puncture and not self.puncture_called[i]:
+        for i, wh in enumerate(p.wheels[:4]):
+            if wh.puncture and not self.puncture_called[i]:
                 self.puncture_called[i] = True
                 out.append(ctx.event("tyres.puncture", Priority.CRITICAL, "tyres", ttl=20, interrupt=True,
                                      allow_in_silence=True, wheel=sp.wheel(WHEELS[i])))
-            elif len(known) == 4 and w.pressure_kpa and not self.pressure_called[i]:
+            elif len(known) == 4 and wh.pressure_kpa and not self.pressure_called[i]:
                 others = [x for j, x in enumerate(pressures) if j != i and x]
                 avg = sum(others) / len(others)
-                if avg - w.pressure_kpa > 45 and p.speed_ms > 10:
+                if avg - wh.pressure_kpa > 45 and p.speed_ms > 10:
                     self.pressure_called[i] = True
                     out.append(ctx.event("tyres.puncture", Priority.CRITICAL, "tyres", ttl=20, interrupt=True,
                                          allow_in_silence=True, wheel=sp.wheel(WHEELS[i])))
-                elif avg - w.pressure_kpa > 18 and p.speed_ms > 10:
+                elif avg - wh.pressure_kpa > 18 and p.speed_ms > 10:
                     self.pressure_called[i] = True
                     out.append(ctx.event("tyres.pressure_loss", Priority.HIGH, "tyres", ttl=20,
                                          wheel=sp.wheel(WHEELS[i])))
@@ -129,8 +129,8 @@ class TyreDetector(Detector):
             slips = [w.slip_ratio for w in p.wheels[:4] if w.slip_ratio is not None]
             if slips and min(slips) < -0.25 and p.brake > 0.3 and f.t - self.lock_t > 1.0:
                 self.lock_t = f.t
-                corner = ctx.track.corner_at(me.lap_distance_m) if ctx.track else None
-                self.lockups[corner.label if corner else "?"] += 1
+                at = ctx.track.corner_at(me.lap_distance_m) if ctx.track else None
+                self.lockups[at.label_for(sp.lang) if at else "?"] += 1
             if slips and max(slips) > 0.25 and p.throttle > 0.5 and f.t - self.spin_t > 1.0:
                 self.spin_t = f.t
                 self.spins += 1

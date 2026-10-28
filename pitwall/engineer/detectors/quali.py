@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from ...core.frame import Capability, PitState
 from ...core.state import LapRecord, StateEventKind
 from ..describe import delta_text
@@ -46,7 +48,7 @@ class QualiDetector(Detector):
                 pos = sp.position(me.position)
                 if improved:
                     key = "quali.result_improved" if self.best is not None else "quali.result"
-                    data = {"time": sp.laptime(rec.time_s, 3 if (self.best or 0) else 1), "pos": pos,
+                    data: dict[str, Any] = {"time": sp.laptime(rec.time_s, 3 if (self.best or 0) else 1), "pos": pos,
                             "delta_text": delta_text(rec.time_s - self.best, sp) if self.best else delta_text(None, sp)}
                     self.best = rec.time_s
                 else:

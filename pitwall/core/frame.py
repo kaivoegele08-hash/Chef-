@@ -375,7 +375,7 @@ class Damage:
 
     def worst(self) -> tuple[str, float] | None:
         best: tuple[str, float] | None = None
-        for name in self.__slots__:  # type: ignore[attr-defined]
+        for name in self.__slots__:
             val = getattr(self, name)
             if val is not None and (best is None or val > best[1]):
                 best = (name, val)

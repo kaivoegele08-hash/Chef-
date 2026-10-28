@@ -450,13 +450,14 @@ class PitWallApp:
         return self.recorder.info()
 
     def stop_recording(self) -> dict[str, Any] | None:
-        if self.recorder is None:
+        rec = self.recorder
+        if rec is None:
             return None
-        info = self.recorder.info()
+        info = rec.info()
         for a in [self.adapter, getattr(self.adapter, "active", None)]:
-            if a is not None and getattr(a, "recorder", None) is self.recorder:
+            if a is not None and id(getattr(a, "recorder", None)) == id(rec):
                 a.recorder = None
-        self.recorder.close()
+        rec.close()
         self.recorder = None
         return info
 

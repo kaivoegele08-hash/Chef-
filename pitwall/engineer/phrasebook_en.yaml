@@ -49,7 +49,7 @@ strategy:
   plan_b_text: ["Plan B: {plan_b}."]
   window_open: ["Pit window is open. Laps {lo} to {hi}."]
   window_soon: ["Box in about {laps}. Plan stays {compound}."]
-  box_this_lap: ["Box this lap, box this lap. {compound}.", "Box, box. In this lap, {compound}."]
+  box_this_lap: ["Box this lap, box this lap. {compound}.", "Box, box. This lap, onto {compound}."]
   box_now: ["Box, box, box!"]
   box_under_sc: ["Safety car! Box, box, this lap. We gain {gain}. {compound}."]
   stay_out_sc: ["Safety car. We stay out, a stop doesn't pay."]
@@ -89,7 +89,7 @@ tyres:
   wear_limit: ["Tyres are done, {wheel} {wear}. We need to box."]
   puncture: ["Puncture {wheel}! Slow down, box, box!"]
   pressure_loss: ["Pressure loss {wheel}. Keep an eye on it."]
-  lockups: ["{count} lock-ups this lap, mostly {corner}. Look after the fronts."]
+  lockups: ["{count} lock-ups this lap, mostly at {corner}. Look after the fronts."]
   wheelspin: ["Lots of wheelspin on exit. Smoother throttle, the rears are suffering."]
   deg_report: ["Degradation about {deg} a lap."]
 

@@ -175,7 +175,7 @@ tyres:
   pressure_loss:
     - "Druckverlust {wheel}. Behalte das im Auge."
   lockups:
-    - "{count} Verbremser in dieser Runde, meistens {corner}. Vorderreifen schonen."
+    - "{count} Verbremser in dieser Runde, meistens in {corner}. Vorderreifen schonen."
     - "Du blockierst oft in {corner}. Etwas weniger Bremsdruck am Anfang."
   wheelspin:
     - "Viel Wheelspin am Kurvenausgang. Sanfter ans Gas, die Hinterreifen leiden."

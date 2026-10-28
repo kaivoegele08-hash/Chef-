@@ -45,6 +45,9 @@ class Corner:
     def label(self) -> str:
         return self.name or f"Kurve {self.number}"
 
+    def label_for(self, lang: str) -> str:
+        return self.name or (f"Kurve {self.number}" if lang == "de" else f"Turn {self.number}")
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "number": self.number,

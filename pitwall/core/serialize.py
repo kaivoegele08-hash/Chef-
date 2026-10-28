@@ -81,7 +81,7 @@ def from_dict(cls: type, data: dict[str, Any]) -> Any:
 
 
 def frame_to_dict(frame: fr.TelemetryFrame) -> dict[str, Any]:
-    return to_dict(frame)  # type: ignore[no-any-return]
+    return to_dict(frame)
 
 
 def frame_from_dict(data: dict[str, Any]) -> fr.TelemetryFrame:
@@ -89,4 +89,4 @@ def frame_from_dict(data: dict[str, Any]) -> fr.TelemetryFrame:
     data.setdefault("capabilities", [])
     data.setdefault("session", {})
     data.setdefault("player", {})
-    return from_dict(fr.TelemetryFrame, data)  # type: ignore[no-any-return]
+    return from_dict(fr.TelemetryFrame, data)

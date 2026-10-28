@@ -26,6 +26,7 @@ def timing_rows(frame: TelemetryFrame, state: RaceState) -> list[dict[str, Any]]
     for car in order:
         if car.status is CarStatus.INACTIVE:
             continue
+        gap_leader: float | None
         if car.gap_to_leader_s is not None and frame.has(Capability.NATIVE_GAPS):
             gap_leader = car.gap_to_leader_s
         elif me is not None and car.idx == me.idx:
@@ -82,7 +83,7 @@ def player_block(frame: TelemetryFrame) -> dict[str, Any]:
             "dmg": _r(w.damage_pct),
             "puncture": w.puncture,
         })
-    dmg = {k: _r(getattr(p.damage, k), 0) for k in p.damage.__slots__ if getattr(p.damage, k) is not None}  # type: ignore[attr-defined]
+    dmg = {k: _r(getattr(p.damage, k), 0) for k in p.damage.__slots__ if getattr(p.damage, k) is not None}
     out: dict[str, Any] = {
         "speed": _r(p.speed_ms * 3.6, 0),
         "gear": p.gear,
@@ -122,7 +123,7 @@ def player_block(frame: TelemetryFrame) -> dict[str, Any]:
         })
     if p.truck is not None:
         t = p.truck
-        out["truck"] = {k: getattr(t, k) for k in t.__slots__}  # type: ignore[attr-defined]
+        out["truck"] = {k: getattr(t, k) for k in t.__slots__}
     return out
 
 

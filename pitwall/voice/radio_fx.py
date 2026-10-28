@@ -62,11 +62,12 @@ def apply_radio_fx(audio: np.ndarray, sr: int, intensity: float = 0.6, squelch: 
     y = 0.85 * y + noise_level * noise / (float(np.max(np.abs(noise))) or 1.0)
     if squelch:
         pre_noise = rng.normal(0, 1, int(sr * 0.06)).astype(np.float32)
-        pre_noise = _bandpass(pre_noise, sr, 800.0, 6000.0) * 0.05 * (0.5 + k)
+        pre_noise = (_bandpass(pre_noise, sr, 800.0, 6000.0) * 0.05 * (0.5 + k)).astype(np.float32)
         start = np.concatenate([_click(sr, 0.35 + 0.3 * k), pre_noise])
         end_beep = _tone(sr, 1250.0, 0.055, 0.18 + 0.12 * k)
         tail_noise = rng.normal(0, 1, int(sr * 0.09)).astype(np.float32)
-        tail_noise = _bandpass(tail_noise, sr, 800.0, 6000.0) * np.linspace(0.12, 0.0, tail_noise.size) * (0.5 + k)
+        tail_noise = (_bandpass(tail_noise, sr, 800.0, 6000.0) * np.linspace(0.12, 0.0, tail_noise.size)
+                      * (0.5 + k)).astype(np.float32)
         end = np.concatenate([np.zeros(int(sr * 0.03), np.float32), end_beep, tail_noise.astype(np.float32),
                               _click(sr, 0.25)])
         y = np.concatenate([start, y, end])

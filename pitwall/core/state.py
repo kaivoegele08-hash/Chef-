@@ -634,8 +634,8 @@ class RaceState:
                 stint.end_lap = None
         self.stints = [s for s in self.stints if s.start_lap <= new_lap] or self.stints[:1]
         for hist in self.opponents.values():
-            hist.laps = {k: v for k, v in hist.laps.items() if k < (frame.car(hist.idx).lap if frame.car(hist.idx)
-                                                                   else k + 1)}
+            car = frame.car(hist.idx)
+            hist.laps = {k: v for k, v in hist.laps.items() if car is None or k < car.lap}
             hist.gap_to_me_at_line = {k: v for k, v in hist.gap_to_me_at_line.items() if k < new_lap}
             car = frame.car(hist.idx)
             if car is not None:

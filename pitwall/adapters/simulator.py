@@ -1028,7 +1028,7 @@ class SimulatorAdapter(SimAdapter):
             return True
         return False
 
-    async def frames(self) -> AsyncIterator[TelemetryFrame]:  # type: ignore[override]
+    async def frames(self) -> AsyncIterator[TelemetryFrame]:
         self.running = True
         self.status_text = "Simulation läuft"
         period = self.sim.dt

@@ -53,7 +53,7 @@ class FuelStatus:
 
     def to_dict(self) -> dict[str, Any]:
         return {k: (round(v, 3) if isinstance(v, float) else v) for k, v in
-                ((name, getattr(self, name)) for name in self.__slots__)}  # type: ignore[attr-defined]
+                ((name, getattr(self, name)) for name in self.__slots__)}
 
 
 def laps_remaining(

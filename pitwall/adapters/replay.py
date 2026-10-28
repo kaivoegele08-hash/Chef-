@@ -89,7 +89,7 @@ class ReplayAdapter(SimAdapter):
         self.position_t = 0.0
         self.paused = False
 
-    async def frames(self) -> AsyncIterator[TelemetryFrame]:  # type: ignore[override]
+    async def frames(self) -> AsyncIterator[TelemetryFrame]:
         if self.path is None or not self.path.exists():
             self.status_text = "keine Aufnahme gewählt"
             return

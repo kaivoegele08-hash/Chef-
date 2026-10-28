@@ -37,7 +37,7 @@ def adapter_class(key: str) -> type[SimAdapter]:
         raise KeyError(f"Unbekannter Adapter: {key}. Verfügbar: {', '.join(ADAPTERS)}")
     mod, cls, _ = ADAPTERS[key]
     module = importlib.import_module(mod)
-    return getattr(module, cls)  # type: ignore[no-any-return]
+    return getattr(module, cls)
 
 
 def create_adapter(key: str, config: Config, **kwargs: Any) -> SimAdapter:
@@ -124,7 +124,7 @@ class AutoAdapter(SimAdapter):
                 pass
         self._queue.put_nowait(("", None))  # type: ignore[arg-type]
 
-    async def frames(self) -> AsyncIterator[TelemetryFrame]:  # type: ignore[override]
+    async def frames(self) -> AsyncIterator[TelemetryFrame]:
         last_frame_t = time.monotonic()
         while self.running:
             try:
