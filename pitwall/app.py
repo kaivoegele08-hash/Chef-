@@ -113,7 +113,8 @@ class PitWallApp:
             self.voice = VoiceOutput(make_tts(self.config), AudioPlayer(vc.get("output_device") or None,
                                                                         float(vc.get("volume", 1.0))),
                                      bool(vc.get("radio_fx", True)), float(vc.get("radio_fx_intensity", 0.6)),
-                                     on_event=self._on_speech_event)
+                                     on_event=self._on_speech_event,
+                                     natural_pauses=bool(vc.get("natural_style", True)))
             from .voice.stt import Recorder as MicRecorder
             from .voice.stt import SpeechToText
 

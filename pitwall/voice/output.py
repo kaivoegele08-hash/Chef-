@@ -51,7 +51,7 @@ class SpeechEvent:
 
 class VoiceOutput:
     def __init__(self, tts: TTSProvider, player: AudioPlayer, radio_fx: bool = True, intensity: float = 0.6,
-                 on_event: Callable[[SpeechEvent], None] | None = None):
+                 on_event: Callable[[SpeechEvent], None] | None = None, natural_pauses: bool = True):
         self.tts = tts
         self.player = player
         self.radio_fx = radio_fx
@@ -61,6 +61,8 @@ class VoiceOutput:
         self._cancel = False
         self._lock = asyncio.Lock()
         self.last_synth_ms: float | None = None
+        self.natural_pauses = natural_pauses
+        self._rng = np.random.default_rng()
 
     def _emit(self, ev: SpeechEvent) -> None:
         if self.on_event:
@@ -78,9 +80,12 @@ class VoiceOutput:
     def busy(self) -> bool:
         return self._current_id is not None
 
-    def _render(self, sentence: str) -> tuple[np.ndarray, int]:
+    def _render(self, sentence: str, gap_s: float = 0.0) -> tuple[np.ndarray, int]:
         t0 = time.perf_counter()
         audio, sr = self.tts.synthesize(sentence)
+        if gap_s > 0:
+            # kurze Pause vor dem Folgesatz (wird vom Funk-Rauschen mit gefüllt – klingt nach "Luft holen")
+            audio = np.concatenate([np.zeros(int(sr * gap_s), np.float32), audio.astype(np.float32)])
         self.last_synth_ms = (time.perf_counter() - t0) * 1000
         if self.radio_fx:
             audio = apply_radio_fx(audio, sr, self.intensity, squelch=False)
@@ -106,14 +111,23 @@ class VoiceOutput:
             self._current_id = utterance_id
             loop = asyncio.get_running_loop()
             it = sentences.__aiter__()
+            set_style = getattr(self.tts, "set_style", None)
+            if callable(set_style):
+                set_style(priority)
+            n_rendered = 0
 
             async def fetch_render() -> tuple[str, tuple[np.ndarray, int]] | None:
+                nonlocal n_rendered
                 text = await _anext(it)
                 while text is not None and not text.strip():
                     text = await _anext(it)
                 if text is None:
                     return None
-                return text, await loop.run_in_executor(None, self._render, text)
+                gap = 0.0
+                if n_rendered and self.natural_pauses:
+                    gap = float(self._rng.uniform(0.12, 0.24)) * (0.5 if priority == "CRITICAL" else 1.0)
+                n_rendered += 1
+                return text, await loop.run_in_executor(None, self._render, text, gap)
 
             total = 0.0
             first = True

@@ -22,6 +22,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 from .events import Priority, RadioEvent, Utterance
+from .humanize import Humanizer
 from .phrasebook import Phrasebook
 
 if TYPE_CHECKING:
@@ -68,8 +69,9 @@ class DirectorStats:
 class RadioDirector:
     def __init__(self, phrasebook: Phrasebook, mode: str = "normal", max_info_per_lap: int = 3,
                  words_per_second: float = 2.8, on_utterance: Callable[[Utterance], None] | None = None,
-                 on_interrupt: Callable[[Utterance], None] | None = None):
+                 on_interrupt: Callable[[Utterance], None] | None = None, humanizer: Humanizer | None = None):
         self.pb = phrasebook
+        self.humanizer = humanizer
         self.mode = mode if mode in MODES else "normal"
         self.max_info_per_lap = max_info_per_lap
         self.wps = words_per_second
@@ -273,7 +275,10 @@ class RadioDirector:
     def _render(self, e: RadioEvent) -> tuple[str, str] | None:
         if e.text is not None:
             return e.text, e.spoken or e.text
-        return self.pb.render(e.key, e.data)
+        rendered = self.pb.render(e.key, e.data)
+        if rendered is not None and self.humanizer is not None:
+            rendered = self.humanizer.apply(rendered[0], rendered[1], e.priority, e.created_t, e.key, e.category)
+        return rendered
 
     def _duplicate(self, e: RadioEvent, text: str, t: float) -> bool:
         if e.priority >= Priority.ANSWER:

@@ -15,6 +15,7 @@ from ..strategy.engine import StrategyEngine, StrategySnapshot, sim_profile
 from .detectors import Detector, EngineerContext, racing_detectors
 from .director import DirectorInput, RadioDirector
 from .events import Priority, RadioEvent, Utterance
+from .humanize import Humanizer
 from .memory import RaceMemory
 from .phrasebook import Phrasebook
 from .speech import Speaker
@@ -38,6 +39,8 @@ class Engineer:
             words_per_second=float(config.get("voice.words_per_second", 2.8)),
             on_utterance=self._on_utterance,
             on_interrupt=self._on_interrupt,
+            humanizer=Humanizer(self.lang, str(config.get("engineer.driver_name", "") or ""),
+                                bool(config.get("voice.natural_style", True)), seed=seed),
         )
         self.strategy = StrategyEngine(config, long_memory)
         self.memory = RaceMemory()

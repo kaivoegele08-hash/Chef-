@@ -73,16 +73,40 @@ class SilentTTS(TTSProvider):
         return np.zeros(int(dur * self.sr), dtype=np.float32), self.sr
 
 
+# Sprechtempo je Dringlichkeit (Faktor auf length_scale: < 1 = schneller). Ein echter Engineer
+# spricht bei "Box, Box!" knapp und zügig, bei Infos ruhig.
+STYLE_RATE = {"CRITICAL": 0.88, "HIGH": 0.95, "ANSWER": 0.98, "INFO": 1.0, "CHATTER": 1.04}
+
+
+def trim_silence(audio: np.ndarray, threshold: float = 0.01, pad: int = 240) -> np.ndarray:
+    """Stille am Anfang/Ende entfernen (Piper hängt je Satz eigene Stille an)."""
+    idx = np.flatnonzero(np.abs(audio) > threshold)
+    if idx.size == 0:
+        return audio[:0]
+    return audio[max(0, idx[0] - pad): min(audio.size, idx[-1] + 1 + pad)]
+
+
 class PiperTTS(TTSProvider):
     name = "piper"
 
-    def __init__(self, voice: str, voices_dir: Path, length_scale: float = 0.92, use_cuda: bool = False):
+    def __init__(self, voice: str, voices_dir: Path, length_scale: float = 0.92, use_cuda: bool = False,
+                 noise_scale: float | None = None, noise_w_scale: float | None = None, natural: bool = True,
+                 seed: int | None = None):
         self.voice_name = voice
         self.voices_dir = voices_dir
         self.length_scale = length_scale
         self.use_cuda = use_cuda
+        # Piper-Standard: noise 0.667 / noise_w 0.8. Etwas mehr Variation klingt weniger monoton.
+        self.noise_scale = noise_scale
+        self.noise_w_scale = noise_w_scale
+        self.natural = natural
+        self.style = "INFO"
+        self.rng = np.random.default_rng(seed)
         self._voice: Any = None
         self._error: str | None = None
+
+    def set_style(self, priority: str) -> None:
+        self.style = priority
 
     def model_path(self) -> Path:
         return self.voices_dir / f"{self.voice_name}.onnx"
@@ -98,7 +122,7 @@ class PiperTTS(TTSProvider):
             return False
         return True
 
-    def _load(self) -> object:
+    def _load(self) -> Any:
         if self._voice is None:
             from piper import PiperVoice
 
@@ -113,13 +137,27 @@ class PiperTTS(TTSProvider):
         from piper import SynthesisConfig
 
         voice = self._load()
-        cfg = SynthesisConfig(length_scale=self.length_scale)
-        chunks = list(voice.synthesize(text, syn_config=cfg))  # type: ignore[attr-defined]
+        length = self.length_scale
+        if self.natural:
+            # Tempo nach Lage + leichte Schwankung von Spruch zu Spruch (niemand spricht immer exakt gleich)
+            length *= STYLE_RATE.get(self.style, 1.0) * float(self.rng.uniform(0.97, 1.03))
+        cfg = SynthesisConfig(length_scale=length, noise_scale=self.noise_scale, noise_w_scale=self.noise_w_scale)
+        chunks = list(voice.synthesize(text, syn_config=cfg))
         if not chunks:
             return np.zeros(1, dtype=np.float32), 22050
         sr = chunks[0].sample_rate
-        audio = np.concatenate([c.audio_float_array.astype(np.float32).flatten() for c in chunks])
-        return audio, sr
+        parts = [c.audio_float_array.astype(np.float32).flatten() for c in chunks]
+        if not self.natural or len(parts) == 1:
+            return np.concatenate(parts), sr
+        # Piper liefert je Satz ein Stück: dazwischen eine natürliche, leicht variierende Atempause
+        out: list[np.ndarray] = []
+        for i, part in enumerate(parts):
+            part = trim_silence(part)
+            if i:
+                gap = float(self.rng.uniform(0.16, 0.28)) * (0.6 if self.style == "CRITICAL" else 1.0)
+                out.append(np.zeros(int(sr * gap), np.float32))
+            out.append(part)
+        return np.concatenate(out), sr
 
 
 class ElevenLabsTTS(TTSProvider):
@@ -217,7 +255,13 @@ def make_tts(config: Config) -> TTSProvider:
                                    language=lang))
     if provider in ("piper", "elevenlabs"):
         voice = str(config.get("voice.piper_voice" if lang == "de" else "voice.piper_voice_en"))
-        chain.append(PiperTTS(voice, voices_dir(config), float(config.get("voice.piper_length_scale", 0.92))))
+        def _opt(key: str) -> float | None:
+            v = config.get(key)
+            return float(v) if v not in (None, "") else None
+
+        chain.append(PiperTTS(voice, voices_dir(config), float(config.get("voice.piper_length_scale", 0.92)),
+                              noise_scale=_opt("voice.piper_noise_scale"), noise_w_scale=_opt("voice.piper_noise_w"),
+                              natural=bool(config.get("voice.natural_style", True))))
     if provider in ("piper", "elevenlabs", "espeak"):
         chain.append(EspeakTTS(lang))
     for p in chain:
