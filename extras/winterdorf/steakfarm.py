@@ -27,99 +27,108 @@ NAMES = {
     "snow_layer": "Schneeschicht", "lantern": "Laterne", "leaves": "Fichtenlaub",
 }
 
-TX0, TX1, TY0, TY1, TZ1 = 0, 12, 0, 10, 22     # Turm
-RX0, RX1, RY0, RY1, RZ1 = 13, 33, 2, 10, 10    # Restaurant
-PX0, PX1, PY, PZ1 = 36, 40, 9, 25              # Pylon
+# Proportionen nach Foto: hoher Turm hinten links, dunkler Flachbau davor rechts (überlappt den Turm),
+# schmaler Pylon an der rechten Ecke, zwei Fahnenmasten vor dem Turm.
+TX0, TX1, TY0, TY1, TZ1 = 0, 16, 0, 10, 27     # Turm: 17 breit, 11 tief, 28 hoch
+RX0, RX1, RY0, RY1, RZ1 = 10, 30, 7, 14, 11    # Restaurant: 21 breit, 8 tief, 12 hoch, 4 vor dem Turm
+PX0, PX1, PY0, PY1, PZ1 = 32, 34, 12, 14, 15   # Pylon: 3 breit, 16 hoch
+GLASS_X = range(5, 11)                          # senkrechter Glasstreifen im Turm
 
 
-def build() -> tuple[Voxels, set[tuple[int, int, int]]]:
+def letter(v: Voxels, ch: str, x0: int, y: int, ztop: int, kind: str = "snow") -> None:
+    for r, row in enumerate(FONT3x5[ch]):
+        for c, px in enumerate(row):
+            if px == "X":
+                v.set(x0 + c, y, ztop - r, kind)
+
+
+def build() -> tuple[Voxels, set[tuple[int, int, int]], set[tuple[int, int, int]]]:
     v = Voxels()
-    # --- Turm (heller Stein, Glasfassade vorn, dunkles Band oben)
+    # --- Turm: heller Stein, Glasstreifen, verglastes Erdgeschoss, dunkles Band oben
     v.fill(TX0, TY0, 0, TX1, TY1, 0, "stone_bricks")
-    v.fill(TX0, TY0, 1, TX1, TY1, TZ1 - 2, "stone_bricks")
-    v.fill(TX0, TY0, TZ1 - 1, TX1, TY1, TZ1, "deepslate_tiles")
+    v.fill(TX0, TY0, 1, TX1, TY1, TZ1 - 3, "stone_bricks")
+    v.fill(TX0, TY0, TZ1 - 2, TX1, TY1, TZ1, "deepslate_tiles")
     for x in range(TX0, TX1 + 1):
-        for z in range(1, TZ1 - 1):
-            if x in (0, 4, 8, 12):
+        for z in range(1, 5):                        # Erdgeschoss rundum verglast
+            v.set(x, TY1, z, "dark_oak_log" if x % 4 == 0 else "glass")
+        v.set(x, TY1, 5, "dark_oak_planks")
+    for x in GLASS_X:                                # Glasfassade über alle Etagen
+        for z in range(6, TZ1 - 2):
+            if x in (GLASS_X.start, GLASS_X.stop - 1):
                 kind = "dark_oak_log"
-            elif z <= 4:
-                kind = "glass"                       # Erdgeschoss komplett verglast
-            elif (z - 1) % 4 == 3:
-                kind = "dark_oak_planks"             # Brüstung zwischen den Etagen
+            elif (z - 5) % 4 == 0:
+                kind = "dark_oak_planks"
             else:
                 kind = "glass"
             v.set(x, TY1, z, kind)
-    for y in (2, 3, 7, 8):                           # Seitenfenster
-        for z in range(6, TZ1 - 2, 4):
-            v.set(TX1, y, z, "glass"); v.set(TX1, y, z + 1, "glass")
-    # --- Restaurant (dunkler Flachbau)
-    v.fill(RX0, RY0, 0, RX1, RY1, 0, "stone_bricks")
-    v.fill(RX0, RY0, 1, RX1, RY1, RZ1, "deepslate_tiles")
-    for x0 in (15, 25):
-        for x in range(x0, x0 + 5):
-            for z in (1, 2, 3):
-                v.set(x, RY1, z, "glass_lit" if x not in (x0, x0 + 4) else "dark_oak_log")
-    for x in range(21, 24):
-        for z in (1, 2, 3):
-            v.set(x, RY1, z, "door" if (x == 22 and z < 3) else "glass_lit")
-    for y in (4, 5, 7, 8):
-        for z in (1, 2, 3):
-            v.set(RX1, y, z, "glass_lit")
-    # Schriftzug STEAK aus Schneeblöcken im Band
-    x = 14
+    # --- Restaurant: dunkler Kasten, Eingang links, großes Fenster rechts, Schriftzug oben
+    v.fill(RX0, RY0, 0, RX1, RY1, RZ1, "deepslate_tiles")
+    for z in range(1, 5):
+        for x in range(13, 17):                      # Eingang (Glas + Tür)
+            v.set(x, RY1, z, "dark_oak_log" if x in (13, 16) else ("door" if z < 3 and x == 14 else "glass_lit"))
+        for x in range(21, 28):                      # großes Fenster
+            v.set(x, RY1, z, "dark_oak_log" if x in (21, 27) else "glass_lit")
+    x = RX0 + 1
     for ch in "STEAK":
-        for r, row in enumerate(FONT3x5[ch]):
-            for c, px in enumerate(row):
-                if px == "X":
-                    v.set(x + c, RY1, 9 - r, "snow")
+        letter(v, ch, x, RY1, RZ1 - 1)
         x += 4
-    # --- Pylon mit FARM (senkrecht)
-    v.fill(PX0, PY, 0, PX1, PY, 1, "stone_bricks")
-    v.fill(PX0, PY, 2, PX1, PY, PZ1, "dark_oak_planks")
-    v.fill(PX0, PY, PZ1, PX1, PY, PZ1, "dark_oak_log")
-    top = PZ1 - 2
-    for ch in "FARM":
-        for r, row in enumerate(FONT3x5[ch]):
-            for c, px in enumerate(row):
-                if px == "X":
-                    v.set(PX0 + 1 + c, PY, top - r, "snow")
-        top -= 6
+    for y in (9, 10, 11):                            # Seitenfenster rechts
+        for z in range(1, 5):
+            v.set(RX1, y, z, "glass_lit")
+    # --- Pylon an der rechten Ecke, etwas höher als der Flachbau, Monogramm S/F
+    v.fill(PX0, PY0, 0, PX1, PY1, 1, "stone_bricks")
+    v.fill(PX0, PY0, 2, PX1, PY1, PZ1, "spruce_planks")
+    letter(v, "S", PX0, PY1, PZ1 - 1)
+    letter(v, "F", PX0, PY1, PZ1 - 7)
     building = set(v.b)
+    # --- Zwei Fahnenmasten vor dem Turm (wie die senkrechten Banner auf dem Foto)
+    decor: set[tuple[int, int, int]] = set()
+    for bx in (0, 5):
+        for z in range(0, 21):
+            v.set(bx, 13, z, "dark_oak_log"); decor.add((bx, 13, z))
+        for z in range(7, 20):
+            for c in range(1, 4):
+                v.set(bx + c, 13, z, "spruce_planks"); decor.add((bx + c, 13, z))
+        for ch, top in (("S", 18), ("F", 12)):
+            for r, row in enumerate(FONT3x5[ch]):
+                for c, px in enumerate(row):
+                    if px == "X":
+                        v.set(bx + 1 + c, 13, top - r, "snow")
     # --- Gelände
-    for gx in range(-4, 45):
-        for gy in range(-3, 20):
+    for gx in range(-4, 38):
+        for gy in range(-3, 21):
             if (gx, gy, -1) not in v.b:
                 v.set(gx, gy, -1, "grass")
-    for gx in range(-4, 45):                          # freigeschaufelter Gehweg
-        for gy in (14, 15, 16):
+    for gx in range(-4, 38):                          # freigeschaufelter Gehweg
+        for gy in (17, 18, 19):
             v.set(gx, gy, -1, "path")
-    for gx in range(21, 24):
-        for gy in range(11, 14):
+    for gx in range(14, 16):
+        for gy in (15, 16):
             v.set(gx, gy, -1, "path")
-    # Pflanzbeete mit Bruchsteinrand, Büschen und Schneekugeln
-    for bx0, bx1 in ((1, 11), (14, 19), (25, 32)):
+    # Beete mit Bruchsteinrand, Büschen und Schneekugeln (die weißen Kugeln vom Foto)
+    for bx0, bx1, by in ((0, 9, 14), (17, 30, 15)):
         for gx in range(bx0, bx1 + 1):
-            for gy in (11, 12):
-                edge = gx in (bx0, bx1) or gy == 12
-                if edge:
-                    v.set(gx, gy, 0, "cobblestone")
+            v.set(gx, by + 1, 0, "cobblestone")
         for gx in range(bx0 + 1, bx1, 3):
-            v.set(gx, 11, 0, "leaves")
-        v.set(bx1 - 1, 11, 0, "snow")
-    # Laternen und kleine Fichte am Eingang
-    for lx in (20, 24):
-        v.fill(lx, 12, 0, lx, 12, 1, "spruce_log")
-        v.set(lx, 12, 2, "lantern", (0.3, 0.3, 0, 0.7, 0.7, 0.5))
-    for z, rad in ((0, 1), (1, 1), (2, 0), (3, 0)):
+            if (gx, by, 0) not in v.b:
+                v.set(gx, by, 0, "leaves")
+        for gx in range(bx0 + 2, bx1, 4):
+            if (gx, by, 0) not in v.b:
+                v.set(gx, by, 0, "snow", (0.15, 0.15, 0, 0.85, 0.85, 0.7))
+    for lx in (12, 17):
+        v.fill(lx, 16, 0, lx, 16, 1, "spruce_log")
+        v.set(lx, 16, 2, "lantern", (0.3, 0.3, 0, 0.7, 0.7, 0.5))
+    # kleine Fichte (statt der kahlen Bäume vom Foto)
+    for z, rad in ((0, 0), (1, 1), (2, 1), (3, 1), (4, 0), (5, 0)):
         for dx in range(-rad, rad + 1):
             for dy in range(-rad, rad + 1):
-                v.set(35 + dx, 13 + dy, z, "leaves")
+                v.set(4 + dx, 16 + dy, z, "spruce_log" if (z == 0) else "leaves")
     v.snow_cover(skip={"path", "lantern"})
-    return v, building
+    return v, building, decor
 
 
 def main() -> None:
-    v, building = build()
+    v, building, decor = build()
     SS = 2
     pic = v.render(15 * SS, pad=30 * SS)
     # Frontansicht (vorderster Block je x/z)
@@ -139,8 +148,9 @@ def main() -> None:
         return any(q not in building for q in ((x + 1, y, z), (x - 1, y, z), (x, y + 1, z),
                                                (x, y - 1, z), (x, y, z + 1), (x, y, z - 1)))
     counts = Counter(v.b[p][0] for p in building if shell(p))
-    W = pic.width + elev_w + 120 * SS
-    H = max(pic.height, elev_h + 620 * SS) + 170 * SS
+    counts.update(v.b[p][0] for p in decor)
+    W = pic.width + max(elev_w, 520 * SS) + 120 * SS
+    H = max(pic.height, elev_h + 760 * SS) + 170 * SS
     img = gradient(W, H, (178, 198, 224), (234, 240, 247))
     rng = random.Random(9)
     d = ImageDraw.Draw(img)
@@ -151,7 +161,7 @@ def main() -> None:
     d = ImageDraw.Draw(img)
     d.text((50 * SS, 36 * SS), "Vorlage „Steak Farm“ – winterlich", font=font(46 * SS, True), fill=(26, 34, 48))
     d.text((50 * SS, 98 * SS),
-           "Grundform nach Foto (Turm + Flachbau + Pylon) · Winterdorf-Blockpalette · Name frei erfunden",
+           "Form nach Foto: Turm hinten, Flachbau davor rechts, Pylon, Fahnen · Winterdorf-Palette · Name frei erfunden",
            font=font(22 * SS), fill=(55, 66, 84))
 
     # Frontansicht zeichnen
@@ -164,15 +174,16 @@ def main() -> None:
     for (x, z), kind in front.items():
         t = tex(kind, "side", 1)
         px, py = ex + (x - fx0) * cs, gy0 + (fz1 - z) * cs
-        col = t[3][3] if kind not in ("snow",) else (250, 252, 255)
+        col = tuple(sum(t[r][c][i] for r in range(N) for c in range(N)) // (N * N) for i in range(3))
         d.rectangle([px, py, px + cs - 1, py + cs - 1], fill=col, outline=(0, 0, 0, 50))
     for i in range(0, fx1 - fx0 + 2, 5):
         d.text((ex + i * cs, gy0 + elev_h + 6 * SS), str(i), font=font(13 * SS), fill=(90, 100, 116))
     dims = [
-        f"Turm: {TX1 - TX0 + 1} × {TY1 - TY0 + 1} Blöcke, {TZ1 + 1} hoch (5 Etagen à 4)",
-        f"Restaurant: {RX1 - RX0 + 1} × {RY1 - RY0 + 1} Blöcke, {RZ1 + 1} hoch, Flachdach",
+        f"Turm: {TX1 - TX0 + 1} × {TY1 - TY0 + 1}, {TZ1 + 1} hoch, Glasstreifen 6 breit",
+        f"Restaurant: {RX1 - RX0 + 1} × {RY1 - RY0 + 1}, {RZ1 + 1} hoch, 4 vor dem Turm,",
+        f"   überlappt dessen rechte {TX1 - RX0 + 1} Blöcke",
         f"Pylon: {PX1 - PX0 + 1} breit, {PZ1 + 1} hoch · Gesamtbreite {PX1 + 1} Blöcke",
-        "Schrift 3 × 5 pro Buchstabe, aus Schneeblöcken",
+        "Fahnen (21 hoch) fehlen in der Frontansicht",
     ]
     ly = gy0 + elev_h + 40 * SS
     d.text((ex, ly), "Maße", font=font(24 * SS, True), fill=(26, 34, 48)); ly += 36 * SS
