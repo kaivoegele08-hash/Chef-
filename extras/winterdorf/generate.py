@@ -96,6 +96,12 @@ def _px(kind: str, face: str, r: int, c: int, rng: random.Random) -> Color:
         if r == c or r == c + 1:
             return (255, 236, 180)
         return jit(rng, (250, 190, 100), 10)
+    if kind == "glass":
+        if r in (0, 7) or c in (0, 7):
+            return jit(rng, (60, 44, 26), 3)
+        if r + c in (5, 6):
+            return (214, 232, 242)
+        return jit(rng, (128, 166, 190), 6)
     if kind == "door":
         if r in (0, 7) or c in (0, 7):
             return jit(rng, (40, 26, 12), 3)
@@ -119,7 +125,7 @@ def _px(kind: str, face: str, r: int, c: int, rng: random.Random) -> Color:
 
 FULL = {
     "snow", "spruce_planks", "dark_oak_planks", "spruce_log", "dark_oak_log", "cobblestone",
-    "stone_bricks", "deepslate_tiles", "glass_lit", "door", "grass", "path", "leaves",
+    "stone_bricks", "deepslate_tiles", "glass_lit", "glass", "door", "grass", "path", "leaves",
 }
 
 
